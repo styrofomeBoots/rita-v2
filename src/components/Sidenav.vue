@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { BugAntIcon } from "@heroicons/vue/24/outline";
+
 import Notification from "./Notification.vue";
 
 const props = defineProps({
@@ -8,8 +9,8 @@ const props = defineProps({
 </script>
 <template>
   <div
-    class="bg-blue-800 text-blue-100 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform xl:relative xl:translate-x-0 transition duration-200 ease-in-out"
-    :class="{ '-translate-x-full': props.showMenu }"
+    class="bg-blue-800 text-blue-100 w-64 space-y-6 py-7 px-2 inset-y-0 left-0 transform absolute -translate-x-full transition duration-200 ease-in-out"
+    :class="{ 'translate-x-0': props.showMenu }"
   >
     <!-- logo -->
     <a href="#" class="text-white flex items-center space-x-2 px-4">
@@ -23,4 +24,3 @@ const props = defineProps({
     </nav>
   </div>
 </template>
-<style lang="scss"></style>

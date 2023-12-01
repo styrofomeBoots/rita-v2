@@ -1,21 +1,32 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Bars2Icon } from "@heroicons/vue/20/solid";
-import Sidenav from "./components/Sidenav.vue";
+import { Cog6ToothIcon } from "@heroicons/vue/24/outline";
 
-const showMenu = ref(false);
+import Sidenav from "./components/Sidenav.vue";
+import SettingsModal from "./components/SettingsModal.vue";
+
+const showMenu = ref(true);
+const showSettings = ref(false);
 </script>
 
 <template>
-  <div class="relative min-h-screen xl:flex">
+  <div class="relative min-h-screen">
     <!-- mobile menu bar -->
-    <div class="bg-gray-800 text-gray-100 flex justify-between xl:hidden">
+    <div class="bg-gray-800 text-gray-100 flex justify-between">
       <!-- logo -->
       <a href="" class="block p-4 text-white font-bold">rita</a>
+      <!-- modal button -->
+      <button
+        @click="showSettings = true"
+        class="p-4 focus:outline-none focus:bg-gray-700"
+      >
+        <Cog6ToothIcon class="h-5 w-5" />
+      </button>
       <!-- menu button -->
       <button
-        class="p-4 focus:outline-none focus:bg-gray-700"
         @click="showMenu = !showMenu"
+        class="p-4 focus:outline-none focus:bg-gray-700"
       >
         <Bars2Icon class="h-5 w-5" />
       </button>
@@ -26,7 +37,8 @@ const showMenu = ref(false);
 
     <!-- content -->
     <div class="flex-1 p-10 text-2xl font-bold">maps boi</div>
+
+    <!-- settings modal -->
+    <SettingsModal v-show="showSettings" @close="showSettings = false" />
   </div>
 </template>
-
-<style></style>
