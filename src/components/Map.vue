@@ -11,6 +11,7 @@ const zoom = ref(0);
     :loadTilesWhileAnimating="true"
     :loadTilesWhileInteracting="true"
     style="height: 100vh; width: 100vw"
+    :controls="[]"
   >
     <ol-view :zoom="zoom" :center="center" />
     <ol-tile-layer>
