@@ -9,7 +9,7 @@ const emit = defineEmits<{
 <template>
   <!-- dark background -->
   <div
-    class="fixed left-0 top-0 bg-black bg-opacity-50 w-screen h-screen flex justify-center items-center"
+    class="fixed z-40 left-0 top-0 bg-black bg-opacity-50 w-screen h-screen flex justify-center items-center"
     @click.self="emit('close')"
   >
     <!-- modal -->

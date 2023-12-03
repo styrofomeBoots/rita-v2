@@ -7,7 +7,7 @@ const props = defineProps({
 </script>
 <template>
   <div
-    class="bg-blue-800 text-blue-100 w-64 space-y-6 py-7 px-2 inset-y-0 left-0 transform absolute -translate-x-full transition duration-200 ease-in-out"
+    class="bg-blue-800 text-blue-100 w-64 space-y-6 py-7 px-2 inset-y-0 left-0 transform absolute z-40 -translate-x-full transition duration-200 ease-in-out"
     :class="{ 'translate-x-0': props.showMenu }"
   >
     <!-- logo -->

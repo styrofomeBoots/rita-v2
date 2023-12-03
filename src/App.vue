@@ -5,8 +5,9 @@ import { Cog6ToothIcon } from "@heroicons/vue/24/outline";
 
 import Sidenav from "./components/Sidenav.vue";
 import SettingsModal from "./components/SettingsModal.vue";
+import Map from "./components/Map.vue";
 
-const showMenu = ref(true);
+const showMenu = ref(false);
 const showSettings = ref(false);
 </script>
 
@@ -36,7 +37,8 @@ const showSettings = ref(false);
     <Sidenav :show-menu="showMenu" />
 
     <!-- content -->
-    <div class="flex-1 p-10 text-2xl font-bold">maps boi</div>
+    <!-- <div class="flex-1 p-10 text-2xl font-bold">maps boi</div> -->
+    <Map />
 
     <!-- settings modal -->
     <SettingsModal v-show="showSettings" @close="showSettings = false" />
