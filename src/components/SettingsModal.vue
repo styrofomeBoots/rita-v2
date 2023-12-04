@@ -9,11 +9,11 @@ const emit = defineEmits<{
 <template>
   <!-- dark background -->
   <div
-    class="fixed z-40 left-0 top-0 bg-black bg-opacity-50 w-screen h-screen flex justify-center items-center"
     @click.self="emit('close')"
+    class="fixed z-40 left-0 top-0 bg-black bg-opacity-50 w-screen h-screen flex justify-center items-center"
   >
     <!-- modal -->
-    <div class="bg-blue-400 text-white rounded-md shadow-md p-2 w-72 flex-row">
+    <div class="bg-gray-700 text-white rounded-md shadow-md p-2 w-72 flex-row">
       <!-- close button -->
       <div class="text-right">
         <button

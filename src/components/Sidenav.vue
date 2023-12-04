@@ -5,7 +5,7 @@ import Notification from "./Notification.vue";
 import SettingsModal from "./SettingsModal.vue";
 
 const showMenu = ref(false);
-const showSettings = ref(false);
+const showSettings = ref(true);
 </script>
 
 <template>
@@ -18,13 +18,13 @@ const showSettings = ref(false);
     <div class="flex justify-end">
       <button
         @click="showSettings = !showSettings"
-        class="p-3 focus:outline-none focus:bg-gray-700 hover:bg-gray-700"
+        class="p-3 rounded-lg focus:outline-none focus:bg-gray-700 hover:bg-gray-700"
       >
         <Cog6ToothIcon class="h-6 w-6" />
       </button>
       <button
         @click="showMenu = !showMenu"
-        class="p-2 focus:outline-none focus:bg-gray-700 hover:bg-gray-700"
+        class="p-2 rounded-lg focus:outline-none hover:bg-gray-700 active:bg-gray-600"
       >
         <svg
           class="h-8 w-8"
