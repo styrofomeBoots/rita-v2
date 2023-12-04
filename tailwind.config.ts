@@ -19,6 +19,13 @@ export default {
           "950": "#262626",
         },
       },
+      keyframes: {
+        settingSlide: {
+          "50%": { transform: "translate(3rem)" },
+          "100%": { transform: "translate(3rem, 3rem)" },
+        },
+      },
+      animation: { settingSlide: "settingSlide 1s ease-in-out" },
     },
   },
   plugins: [],

@@ -5,12 +5,12 @@ import Notification from "./Notification.vue";
 import SettingsModal from "./SettingsModal.vue";
 
 const showMenu = ref(false);
-const showSettings = ref(true);
+const showSettings = ref(false);
 </script>
 
 <template>
   <div
-    class="text-blue-100 w-64 inset-y-0 space-y-3 absolute z-40 transform -translate-x-52 transition duration-200 ease-in-out"
+    class="text-blue-100 w-64 inset-y-0 space-y-3 absolute z-40 -translate-x-52 transition duration-1000 ease-in-out"
     :class="{
       'translate-x-0': showMenu,
     }"
@@ -18,7 +18,11 @@ const showSettings = ref(true);
     <div class="flex justify-end">
       <button
         @click="showSettings = !showSettings"
-        class="p-3 rounded-lg focus:outline-none focus:bg-gray-700 hover:bg-gray-700"
+        class="p-3 rounded-lg absolute z-40 focus:outline-none focus:bg-gray-700 hover:bg-gray-600 translate-y-12 transition duration-1000 ease-in-out"
+        :class="{
+          'translate-y-0': showMenu,
+          '-translate-x-12': showMenu,
+        }"
       >
         <Cog6ToothIcon class="h-6 w-6" />
       </button>
@@ -43,7 +47,10 @@ const showSettings = ref(true);
       </button>
     </div>
 
-    <div class="space-y-1 px-2">
+    <div
+      class="space-y-1 px-2 opacity-0 transition duration-1000 ease-in-out"
+      :class="{ 'opacity-100': showMenu }"
+    >
       <Notification />
       <Notification />
       <Notification />
