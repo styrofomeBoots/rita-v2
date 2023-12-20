@@ -20,12 +20,39 @@ export default {
         },
       },
       keyframes: {
-        settingSlide: {
-          "50%": { transform: "translate(3rem)" },
-          "100%": { transform: "translate(3rem, 3rem)" },
+        "cog-slide-open": {
+          "0%": {
+            transform: "translateY(3rem)",
+            opacity: "1",
+          },
+          "50%": {
+            transform: "translateY(0)",
+            opacity: "0",
+          },
+          "100%": {
+            transform: "translateX(-3rem) translateY(0)",
+            opacity: "1",
+          },
+        },
+        "cog-slide-close": {
+          "0%": {
+            transform: "translateX(-3rem) translateY(0)",
+            opacity: "1",
+          },
+          "50%": {
+            transform: "translateY(0)",
+            opacity: "0",
+          },
+          "100%": {
+            transform: "translateY(3rem)",
+            opacity: "1",
+          },
         },
       },
-      animation: { settingSlide: "settingSlide 1s ease-in-out" },
+      animation: {
+        "cog-slide-open": "cog-slide-open 600ms ease-in-out",
+        "cog-slide-close": "cog-slide-close 600ms ease-in-out",
+      },
     },
   },
   plugins: [],

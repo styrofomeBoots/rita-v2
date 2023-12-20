@@ -6,11 +6,17 @@ import SettingsModal from "./SettingsModal.vue";
 
 const showMenu = ref(false);
 const showSettings = ref(false);
+const shouldAnimate = ref(false); // used to keep
+
+const toggleMenu = () => {
+  shouldAnimate.value = true;
+  showMenu.value = !showMenu.value;
+};
 </script>
 
 <template>
   <div
-    class="text-blue-100 w-64 inset-y-0 space-y-3 absolute z-40 -translate-x-52 transition duration-1000 ease-in-out"
+    class="text-blue-100 w-64 inset-y-0 space-y-3 absolute z-40 -translate-x-52 transition duration-300 delay-300 ease-in-out"
     :class="{
       'translate-x-0': showMenu,
     }"
@@ -18,17 +24,21 @@ const showSettings = ref(false);
     <div class="flex justify-end">
       <button
         @click="showSettings = !showSettings"
-        class="p-3 rounded-lg absolute z-40 focus:outline-none focus:bg-gray-700 hover:bg-gray-600 translate-y-12 transition duration-1000 ease-in-out"
+        class="p-3 rounded-lg absolute z-40 hover:bg-gray-700 active:bg-gray-600"
         :class="{
+          // moves the cog icon
           'translate-y-0': showMenu,
           '-translate-x-12': showMenu,
+          'translate-y-12': !showMenu,
+          'animate-cog-slide-open': showMenu,
+          'animate-cog-slide-close': !showMenu && shouldAnimate,
         }"
       >
         <Cog6ToothIcon class="h-6 w-6" />
       </button>
       <button
-        @click="showMenu = !showMenu"
-        class="p-2 rounded-lg focus:outline-none hover:bg-gray-700 active:bg-gray-600"
+        @click="toggleMenu"
+        class="p-2 rounded-lg hover:bg-gray-700 active:bg-gray-600"
       >
         <svg
           class="h-8 w-8"
@@ -46,9 +56,8 @@ const showSettings = ref(false);
         </svg>
       </button>
     </div>
-
     <div
-      class="space-y-1 px-2 opacity-0 transition duration-1000 ease-in-out"
+      class="space-y-1 px-2 opacity-0 transition duration-500 ease-in-out"
       :class="{ 'opacity-100': showMenu }"
     >
       <Notification />
