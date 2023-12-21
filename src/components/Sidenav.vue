@@ -27,10 +27,8 @@ const toggleMenu = () => {
         class="p-3 rounded-lg absolute z-40 hover:bg-gray-700 active:bg-gray-600"
         :class="{
           // moves the cog icon
-          'translate-y-0': showMenu,
-          '-translate-x-12': showMenu,
+          'translate-y-0 -translate-x-12 animate-cog-slide-open': showMenu,
           'translate-y-12': !showMenu,
-          'animate-cog-slide-open': showMenu,
           'animate-cog-slide-close': !showMenu && shouldAnimate,
         }"
       >
@@ -65,5 +63,7 @@ const toggleMenu = () => {
       <Notification />
     </div>
   </div>
-  <SettingsModal v-show="showSettings" @close="showSettings = false" />
+  <Teleport to="body">
+    <SettingsModal v-show="showSettings" @close="showSettings = false" />
+  </Teleport>
 </template>

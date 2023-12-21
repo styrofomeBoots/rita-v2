@@ -2,7 +2,7 @@ import axios from "axios";
 import { City } from "../types/api.types";
 
 // spell-checker:disable
-const cities: City[] = [
+export const cities: City[] = [
   {
     name: "bay area",
     slug: "baywheels",
