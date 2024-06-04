@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { Cog6ToothIcon } from "@heroicons/vue/24/outline";
 import { ref } from "vue";
-import Notification from "./Notification.vue";
+import StationNotification from "./StationNotification.vue";
 import SettingsModal from "./SettingsModal.vue";
 
 const showMenu = ref(false);
-const showSettings = ref(false);
-const shouldAnimate = ref(false); // used to keep
+const shouldAnimate = ref(false); // keeps animation from popping off on page load
 
-const toggleMenu = () => {
+const modal = ref<InstanceType<typeof SettingsModal>>();
+
+const showModal = () => {
+  modal.value?.show();
+};
+
+const toggleDrawer = () => {
   shouldAnimate.value = true;
   showMenu.value = !showMenu.value;
 };
@@ -23,7 +28,7 @@ const toggleMenu = () => {
   >
     <div class="flex justify-end">
       <button
-        @click="showSettings = !showSettings"
+        @click="showModal"
         class="p-3 rounded-lg absolute z-40 hover:bg-gray-700 active:bg-gray-600"
         :class="{
           // moves the cog icon
@@ -35,7 +40,7 @@ const toggleMenu = () => {
         <Cog6ToothIcon class="h-6 w-6" />
       </button>
       <button
-        @click="toggleMenu"
+        @click="toggleDrawer"
         class="p-2 rounded-lg hover:bg-gray-700 active:bg-gray-600"
       >
         <svg
@@ -58,12 +63,12 @@ const toggleMenu = () => {
       class="space-y-1 px-2 opacity-0 transition duration-500 ease-in-out"
       :class="{ 'opacity-100': showMenu }"
     >
-      <Notification />
-      <Notification />
-      <Notification />
+      <StationNotification />
+      <StationNotification />
+      <StationNotification />
     </div>
   </div>
   <Teleport to="body">
-    <SettingsModal v-show="showSettings" @close="showSettings = false" />
+    <SettingsModal ref="modal" />
   </Teleport>
 </template>
