@@ -4,7 +4,7 @@ import Map from "./components/Map.vue";
 </script>
 
 <template>
-  <div class="relative min-h-screen">
+  <div class="relative h-screen">
     <SideDrawer />
     <Map />
   </div>

@@ -11,12 +11,12 @@
   },
   "dependencies": {
     "@heroicons/vue": "^2.0.18",
-    "axios": "^1.6.2",
+    "alova": "^3.0.9",
+    "axios": "^1.7.4",
     "ol": "^8.2.0",
     "ol-contextmenu": "^5.3.0",
     "ol-ext": "^4.0.13",
-    "vue": "^3.3.8",
-    "vue3-openlayers": "^3.1.0"
+    "vue": "^3.3.8"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",

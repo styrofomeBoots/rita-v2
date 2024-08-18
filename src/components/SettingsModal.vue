@@ -51,7 +51,7 @@ const close = () => {
       <!-- settings -->
       <div v-show="!viewAbout">
         <div>
-          <select class="select select-sm w-full max-w-xs">
+          <select id="citySelect" class="select select-sm w-full max-w-xs">
             <option disabled>city select</option>
             <option selected>washington, dc</option>
             <option>boston</option>
