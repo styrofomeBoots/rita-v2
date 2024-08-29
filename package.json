@@ -17,6 +17,7 @@
     "ol-contextmenu": "^5.3.0",
     "ol-ext": "^4.0.13",
     "pinia": "^2.2.2",
+    "tone": "^15.0.4",
     "vue": "^3.3.8"
   },
   "devDependencies": {

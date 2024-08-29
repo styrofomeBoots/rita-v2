@@ -25,7 +25,7 @@ interface MapBounds {
 const NOTES = ["G", "A", "B", "C", "D", "E", "F"];
 const OCTAVES = [1, 2, 3, 4, 5];
 
-export const useMapStore = defineStore("map", () => {
+export const useMapStore = defineStore("mapStore", () => {
   const stations = ref<Stations>({});
   const mapBounds = ref<MapBounds>({
     lat: { min: Infinity, max: -Infinity },
@@ -51,12 +51,6 @@ export const useMapStore = defineStore("map", () => {
     stations.value = {};
     const stationInformation = await getStationInformation();
     const stationsStatus = await getStationStatus();
-    getMapBounds(stationInformation);
-
-    const latStep =
-      (mapBounds.value.lat.max - mapBounds.value.lat.min) / OCTAVES.length;
-    const lonStep =
-      (mapBounds.value.lat.max - mapBounds.value.lat.min) / NOTES.length;
 
     for (const info of stationInformation) {
       stations.value[info.station_id] = { ...info } as Station;
@@ -68,9 +62,14 @@ export const useMapStore = defineStore("map", () => {
       }
     }
 
-    for (const stationId in stations) {
-      const station = stations.value[stationId];
+    getMapBounds(stationInformation);
+    const latStep =
+      (mapBounds.value.lat.max - mapBounds.value.lat.min) / OCTAVES.length;
+    const lonStep =
+      (mapBounds.value.lon.max - mapBounds.value.lon.min) / NOTES.length;
 
+    for (const stationId in stations.value) {
+      const station = stations.value[stationId];
       const octaveIndex = Math.min(
         Math.floor((station.lat - mapBounds.value.lat.min) / latStep),
         OCTAVES.length - 1

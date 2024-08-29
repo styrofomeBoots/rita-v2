@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
-// import SideDrawer from "@/components/SideDrawer.vue";
-// import Map from "@/components/Map.vue";
-
-onMounted(async () => {});
+import ToneBoy from "@/components/ToneBoy.vue";
 </script>
 
 <template>
-  <div class="relative h-screen">
-    <!-- <SideDrawer />
-    <Map /> -->
+  <div>
+    <ToneBoy />
   </div>
 </template>
