@@ -18,9 +18,11 @@ import { unByKey } from "ol/Observable";
 import { boundingExtent } from "ol/extent";
 import { Pixel } from "ol/pixel";
 import { useMapStore } from "@/stores/mapStore";
+import { playTone } from "@/utilities/tone.utils";
 
 const { mapBounds, stations, stationUpdates } = useMapStore();
 
+const play = ref(false);
 const map = ref<HTMLDivElement>();
 const mapInstance = ref<Map>();
 const mapUrl: string =
@@ -45,8 +47,9 @@ const showStationUpdate = ([lon, lat]): void => {
 
 watch(
   stationUpdates,
-  () => {
+  async () => {
     const update = stationUpdates[0];
+    if (play.value) await playTone(update.note, update.octave);
     showStationUpdate([update.lon, update.lat]);
   },
   { deep: true }
@@ -56,6 +59,7 @@ onMounted(async () => {
   mapInstance.value = new Map({
     target: map.value,
     controls: [],
+    interactions: [],
     layers: [tileLayer],
     view: new View({
       projection: "EPSG:4326",

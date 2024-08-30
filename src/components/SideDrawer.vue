@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { ref, onMounted } from "vue";
 import { Cog6ToothIcon } from "@heroicons/vue/24/outline";
-import { ref } from "vue";
+import RitaIcon from "@/assets/RitaIcon.vue";
 import StationNotification from "./StationNotification.vue";
 import SettingsModal from "./SettingsModal.vue";
 import { useMapStore } from "@/stores/mapStore";
@@ -19,6 +20,9 @@ const toggleDrawer = (): void => {
   showMenu.value = !showMenu.value;
 };
 
+onMounted(() => {
+  showModal();
+});
 // daisy .btn class messes with the cog animation???
 // using something crazy for now.
 </script>
@@ -46,35 +50,73 @@ const toggleDrawer = (): void => {
         class="btn-circle btn-ghost btn-sm absolute z-40 inline-flex items-center justify-center"
         @click="toggleDrawer"
       >
-        <svg
-          class="size-7"
-          fill="currentcolor"
-          version="1.2"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 120 120"
-        >
-          <path
-            d="m14 58.4h3.5l10.7 34.5h-3.5zm18.1 4.7l5-7.7h3l5.1 7.7h-2.9l-3.7-5-3.7 5zm27.2 22.1q-4 3.8-8.1 3.8h-2.4v-3.8h1.9q2.2 0 3.6-0.8 1.2-0.7 2-1.5-2-1.8-3.4-3.6-0.6-0.8-0.6-1.7 0-0.7 0.3-1.5 0.3-1.1 2.4-2.2 1.9-0.9 4.3-0.9 2.4 0 4.3 0.9 2.1 1.1 2.4 2.2 0.3 0.8 0.3 1.5 0 0.9-0.6 1.7-1.6 2-3.4 3.6 0.6 0.6 2 1.5 1.3 0.8 3.6 0.8h1.9v3.8h-2.4q-4.1 0-8.1-3.8zm1.1-8.3q-0.6-0.1-1.1-0.1-0.5 0-1.2 0.1-0.9 0.3-0.9 0.9 0 0.6 2.1 2.6 2.1-2 2.1-2.6 0-0.6-1-0.9zm13-13.8l5-7.7h3l5.1 7.7h-2.9l-3.7-5-3.7 5zm17.1 29.8l10.6-34.5h3.5l-10.6 34.5z"
-          />
-          <path
-            d="m19.8 27.4h4l11.2 11.4h-4.2l-9-8.1-9 8.1h-4.1zm75.2 0h4l11.2 11.4h-4.1l-9.1-8.1-9 8.1h-4.1z"
-          />
-        </svg>
+        <RitaIcon />
       </button>
     </div>
     <div
-      class="space-y-1 px-2 pt-10 opacity-0 transition delay-200 duration-500 ease-in-out"
-      :class="{ 'opacity-100': showMenu }"
+      class="mask-fade h-full opacity-0 transition delay-200 duration-500 ease-in-out"
+      :class="{ 'opacity-90': showMenu }"
     >
-      <StationNotification
-        v-for="update in stationUpdates"
-        :key="update.name"
-        :name="update.name"
-        :bikes-delta="update.bikesDelta"
-      />
+      <transition-group
+        name="station-notification"
+        tag="div"
+        class="flex flex-col gap-1 pt-9"
+      >
+        <StationNotification
+          v-for="update in stationUpdates"
+          :key="update.name"
+          :name="update.name"
+          :bikes-delta="update.bikesDelta"
+        />
+        <div
+          id="emptyState"
+          key="emptyState"
+          class="flex gap-2"
+          :class="{
+            'opacity-0 transition duration-300 ease-in-out':
+              stationUpdates.length > 0,
+          }"
+        >
+          <span class="loading loading-ring loading-md"></span>
+          <span>waiting for action</span>
+        </div>
+      </transition-group>
     </div>
   </div>
   <Teleport to="body">
     <SettingsModal ref="modal" />
   </Teleport>
 </template>
+<style scoped>
+.mask-fade {
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 70%, transparent 100%);
+}
+.station-notification-enter-active,
+.station-notification-leave-active {
+  transition: all 0.5s ease-in-out;
+}
+
+.station-notification-enter-from {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.station-notification-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.station-notification-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.station-notification-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.station-notification-move {
+  transition: transform 0.5s ease-in-out;
+}
+</style>

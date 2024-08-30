@@ -20,6 +20,7 @@ export interface StationUpdate {
 }
 
 export const NOTES = ["G", "A", "B", "C", "D", "E", "F"];
+export const PENTATONIC = ["G", "A", "C", "D", "E"];
 export const OCTAVES = [1, 2, 3, 4, 5];
 export const EMPTY_BOUNDS: MapBounds = {
   lat: { min: Infinity, max: -Infinity },

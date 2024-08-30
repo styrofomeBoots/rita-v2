@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import type { Config } from "tailwindcss";
 
 export default {
-  content: ["./src/**/*.{html,js,vue,ts}"],
+  content: ["./src/**/*.{astro,html,svelte,vue,js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
@@ -57,7 +58,16 @@ export default {
   },
   plugins: [require("daisyui")],
   daisyui: {
-    themes: [],
+    themes: [
+      {
+        sunset: {
+          ...require("daisyui/src/theming/themes")["forest"],
+          ".btn:focus-visible": {
+            outline: "none",
+          },
+        },
+      },
+    ],
     logs: false,
   },
 } satisfies Config;

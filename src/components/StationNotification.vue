@@ -17,7 +17,7 @@ const update = computed(() => {
 </script>
 <template>
   <div class="flex-col p-1">
-    <div class="text-sm font-medium">{{ props.name }}</div>
+    <div class="line-clamp-2 text-sm font-medium">{{ props.name }}</div>
     <div class="text-xs">{{ update }}</div>
   </div>
 </template>
