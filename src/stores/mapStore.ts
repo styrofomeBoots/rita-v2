@@ -11,6 +11,7 @@ import {
 } from "./mapStore.helpers";
 
 export const useMapStore = defineStore("mapStore", () => {
+  const isReady = ref(false);
   const stations = ref<Stations>({});
   const stagedStationUpdates = ref<StationUpdate[]>([]);
   const stationUpdates = ref<StationUpdate[]>([]);
@@ -22,6 +23,7 @@ export const useMapStore = defineStore("mapStore", () => {
     const stationData = await getStations();
     mapBounds.value = getMapBounds(stationData);
     stations.value = getStationNotesAndOctaves(stationData, mapBounds.value);
+    isReady.value = true;
   };
 
   const updateStations = async (): Promise<void> => {
@@ -93,6 +95,7 @@ export const useMapStore = defineStore("mapStore", () => {
   });
 
   return {
+    isReady,
     stations,
     stationUpdates,
     mapBounds,

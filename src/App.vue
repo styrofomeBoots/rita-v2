@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import SideDrawer from "./components/SideDrawer.vue";
-// import ToneBoy from "@/components/ToneBoy.vue";
+import StationMap from "./components/StationMap.vue";
 import { useMapStore } from "./stores/mapStore";
 
-useMapStore();
+const mapStore = useMapStore();
 </script>
 
 <template>
-  <div class="h-screen overflow-hidden">
+  <div class="h-screen">
     <SideDrawer />
-    <!-- <ToneBoy /> -->
+    <StationMap v-if="mapStore.isReady" />
   </div>
 </template>

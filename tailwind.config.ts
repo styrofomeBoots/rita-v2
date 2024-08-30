@@ -57,7 +57,7 @@ export default {
   },
   plugins: [require("daisyui")],
   daisyui: {
-    themes: ["sunset"],
+    themes: [],
     logs: false,
   },
 } satisfies Config;
