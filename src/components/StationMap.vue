@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, Ref, onMounted } from "vue";
+import { ref, Ref, onMounted, watch } from "vue";
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
@@ -19,7 +19,7 @@ import { boundingExtent } from "ol/extent";
 import { Pixel } from "ol/pixel";
 import { useMapStore } from "@/stores/mapStore";
 
-const { mapBounds, stations } = useMapStore();
+const { mapBounds, stations, stationUpdates } = useMapStore();
 
 const map = ref<HTMLDivElement>();
 const mapInstance = ref<Map>();
@@ -36,6 +36,22 @@ const usePopup = ref(false);
 const popup = ref<HTMLDivElement>() as Ref<HTMLDivElement>;
 const popupStationName = ref("");
 
+const showStationUpdate = ([lon, lat]): void => {
+  const geom = new Point([lon, lat]);
+  const feature = new Feature(geom);
+  vectorSource.addFeature(feature);
+  vectorSource.removeFeature(feature);
+};
+
+watch(
+  stationUpdates,
+  () => {
+    const update = stationUpdates[0];
+    showStationUpdate([update.lon, update.lat]);
+  },
+  { deep: true }
+);
+
 onMounted(async () => {
   mapInstance.value = new Map({
     target: map.value,
@@ -45,20 +61,6 @@ onMounted(async () => {
       projection: "EPSG:4326",
     }),
   });
-
-  // const addRandomFeature = async (): Promise<void> => {
-  //   const entries = Object.entries(stations);
-  //   console.log(entries);
-  //   const randomIndex = Math.floor(Math.random() * entries.length);
-  //   console.log(entries[randomIndex]);
-  //   const lat = entries[randomIndex].lat;
-  //   const lon = entries[randomIndex].lon;
-  //   const coordinates = [lat, lon];
-  //   const geom = new Point(coordinates);
-  //   const feature = new Feature(geom);
-  //   vectorSource.addFeature(feature);
-  //   vectorSource.removeFeature(feature);
-  // };
 
   const addMarker = (coordinate: number[], name: string): void => {
     const marker = new Feature({
@@ -95,6 +97,7 @@ onMounted(async () => {
     const lat = stations[s].lat;
     addMarker([lon, lat], stations[s].name);
   }
+
   const vectorLayer = new VectorLayer({
     source: vectorSource,
   });
@@ -102,6 +105,7 @@ onMounted(async () => {
     if (e.feature) flash(e.feature);
   });
   mapInstance.value.addLayer(vectorLayer);
+
   if (usePopup.value) {
     const popupOverlay = new Overlay({
       element: popup.value,
@@ -117,7 +121,6 @@ onMounted(async () => {
           return feature;
         }
       ) as Feature<Point>;
-
       if (feature) {
         const coordinates = feature.getGeometry()?.getCoordinates();
         popupOverlay.setPosition(coordinates);
@@ -127,17 +130,13 @@ onMounted(async () => {
       }
     });
   }
-
-  // window.setInterval(addRandomFeature, 2000);
 });
 
-const duration = 3000;
-function flash(feature: Feature): void {
+const flash = (feature: Feature): void => {
+  const duration = 3000;
   const start = Date.now();
   const flashGeom = feature.getGeometry()?.clone();
-  const listenerKey = tileLayer.on("postrender", animate);
-
-  function animate(event: RenderEvent): void {
+  const listenerKey = tileLayer.on("postrender", (event: RenderEvent): void => {
     if (!flashGeom) return;
     if (!event.frameState?.time) return;
     const elapsed = event.frameState.time - start;
@@ -162,8 +161,8 @@ function flash(feature: Feature): void {
     vectorContext.setStyle(style);
     vectorContext.drawGeometry(flashGeom);
     mapInstance.value?.render();
-  }
-}
+  });
+};
 </script>
 <template>
   <div ref="map" class="h-screen w-screen"></div>
