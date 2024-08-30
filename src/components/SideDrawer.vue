@@ -3,48 +3,51 @@ import { Cog6ToothIcon } from "@heroicons/vue/24/outline";
 import { ref } from "vue";
 import StationNotification from "./StationNotification.vue";
 import SettingsModal from "./SettingsModal.vue";
+import { useMapStore } from "@/stores/mapStore";
 
 const showMenu = ref(false);
 const shouldAnimate = ref(false); // keeps animation from popping off on page load
-
 const modal = ref<InstanceType<typeof SettingsModal>>();
+const { stationUpdates } = useMapStore();
 
-const showModal = () => {
+const showModal = (): void => {
   modal.value?.show();
 };
 
-const toggleDrawer = () => {
+const toggleDrawer = (): void => {
   shouldAnimate.value = true;
   showMenu.value = !showMenu.value;
 };
+
+// daisy .btn class messes with the cog animation???
+// using something crazy for now.
 </script>
 
 <template>
   <div
-    class="text-blue-100 w-64 inset-y-0 space-y-3 absolute z-40 -translate-x-52 transition duration-300 delay-300 ease-in-out"
+    class="absolute inset-y-0 z-40 w-64 -translate-x-52 overflow-hidden pl-3 pt-3 text-blue-100 transition delay-300 duration-300 ease-in-out"
     :class="{
       'translate-x-0': showMenu,
     }"
   >
     <div class="flex justify-end">
       <button
-        @click="showModal"
-        class="p-3 rounded-lg absolute z-40 hover:bg-gray-700 active:bg-gray-600"
+        class="btn-circle btn-ghost btn-sm absolute z-40 inline-flex items-center justify-center"
         :class="{
-          // moves the cog icon
-          'translate-y-0 -translate-x-12 animate-cog-slide-open': showMenu,
-          'translate-y-12': !showMenu,
+          '-translate-x-10 translate-y-0 animate-cog-slide-open': showMenu,
+          'translate-y-10': !showMenu,
           'animate-cog-slide-close': !showMenu && shouldAnimate,
         }"
+        @click="showModal"
       >
-        <Cog6ToothIcon class="h-6 w-6" />
+        <Cog6ToothIcon class="size-6" />
       </button>
       <button
+        class="btn-circle btn-ghost btn-sm absolute z-40 inline-flex items-center justify-center"
         @click="toggleDrawer"
-        class="p-2 rounded-lg hover:bg-gray-700 active:bg-gray-600"
       >
         <svg
-          class="h-8 w-8"
+          class="size-7"
           fill="currentcolor"
           version="1.2"
           xmlns="http://www.w3.org/2000/svg"
@@ -60,12 +63,15 @@ const toggleDrawer = () => {
       </button>
     </div>
     <div
-      class="space-y-1 px-2 opacity-0 transition duration-500 ease-in-out"
+      class="space-y-1 px-2 pt-10 opacity-0 transition delay-200 duration-500 ease-in-out"
       :class="{ 'opacity-100': showMenu }"
     >
-      <StationNotification />
-      <StationNotification />
-      <StationNotification />
+      <StationNotification
+        v-for="update in stationUpdates"
+        :key="update.name"
+        :name="update.name"
+        :bikes-delta="update.bikesDelta"
+      />
     </div>
   </div>
   <Teleport to="body">

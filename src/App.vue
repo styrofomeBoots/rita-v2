@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import ToneBoy from "@/components/ToneBoy.vue";
+import SideDrawer from "./components/SideDrawer.vue";
+// import ToneBoy from "@/components/ToneBoy.vue";
+import { useMapStore } from "./stores/mapStore";
+
+useMapStore();
 </script>
 
 <template>
-  <div>
-    <ToneBoy />
+  <div class="h-screen overflow-hidden">
+    <SideDrawer />
+    <!-- <ToneBoy /> -->
   </div>
 </template>

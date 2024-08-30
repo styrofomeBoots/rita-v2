@@ -28,8 +28,18 @@ export interface StationStatus {
   num_ebikes_available: number;
 }
 
+interface Station extends StationInformation, StationStatus {
+  note: string;
+  octave: number;
+}
+
+export interface Stations {
+  [station_id: string]: Station;
+}
+
 const alova = createAlova({
   requestAdapter: axiosRequestAdapter(),
+  cacheFor: null,
   responded(response) {
     if (response.status >= 400) {
       return Promise.reject(new Error("request error"));
@@ -50,6 +60,24 @@ export const getStationStatus = async (): Promise<StationStatus[]> => {
     "https://gbfs.capitalbikeshare.com/gbfs/en/station_status.json"
   );
   return response.data.stations as StationStatus[];
+};
+
+export const getStations = async (): Promise<Stations> => {
+  const stations = {};
+  const stationInformation = await getStationInformation();
+  const stationStatuses = await getStationStatus();
+
+  for (const info of stationInformation) {
+    stations[info.station_id] = { ...info, note: "G", octave: 1 } as Station;
+  }
+
+  for (const status of stationStatuses) {
+    if (stations[status.station_id]) {
+      Object.assign(stations[status.station_id], status);
+    }
+  }
+
+  return stations;
 };
 
 // export interface City {

@@ -35,9 +35,18 @@ const hInstrument = ref(INSTRUMENTS.value.piano);
 async function playTone(): Promise<void> {
   const baseNote = new Tone.Player(
     `${SF_URL}/${library.value}/${instrument.value}/${note.value + octave.value}.mp3`
-  ).toDestination();
+  );
   baseNote.fadeIn = fadeIn.value;
   baseNote.fadeOut = fadeOut.value;
+  const reverb = new Tone.Reverb({
+    decay: 20,
+    preDelay: 0.01,
+    wet: 0.9,
+  }).toDestination();
+  const chorus = new Tone.Freeverb({
+    roomSize: 0.5,
+    dampening: 4,
+  }).toDestination();
   let harmonyNote;
   if (useHarmony.value) {
     harmonyNote = new Tone.Player(
@@ -46,6 +55,8 @@ async function playTone(): Promise<void> {
     harmonyNote.fadeIn = hFadeIn.value;
     harmonyNote.fadeOut = hFadeOut.value;
   }
+  baseNote.connect(reverb);
+  baseNote.connect(chorus);
   await Tone.loaded();
   baseNote.start();
   if (useHarmony.value) harmonyNote.start();

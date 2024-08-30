@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, Ref, onMounted } from "vue";
-import { getStationInfo, getStationStatus } from "../services/api.service";
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
@@ -21,7 +20,7 @@ import { boundingExtent } from "ol/extent";
 const url: string =
   "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png";
 const map = ref<HTMLDivElement>();
-const popup = ref() as Ref<HTMLDivElement>;
+const popup = ref<HTMLDivElement>() as Ref<HTMLDivElement>;
 const vectorSource = new VectorSource();
 const tileLayer = new TileLayer({
   source: new XYZ({
@@ -171,7 +170,7 @@ function flash(feature: Feature) {
   <div
     ref="popup"
     :class="selectedStationName ? 'block' : 'hidden'"
-    class="absolute bg-white p-1.5 rounded border border-black"
+    class="absolute rounded border border-black bg-white p-1.5"
   >
     {{ selectedStationName }}
   </div>
