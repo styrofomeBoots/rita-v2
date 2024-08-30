@@ -19,13 +19,9 @@ module.exports = {
     ],
     "@typescript-eslint/brace-style": ["error", "1tbs"],
     "@typescript-eslint/explicit-function-return-type": "error",
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      { ignoreRestSiblings: true },
-    ],
-
+    "@typescript-eslint/no-unused-vars": ["error", { ignoreRestSiblings: true }],
     "brace-style": "off",
-    "eqeqeq": "error",
+    eqeqeq: "error",
     "no-console": "warn",
     "no-debugger": "warn",
 

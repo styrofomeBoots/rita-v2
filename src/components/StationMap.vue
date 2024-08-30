@@ -18,11 +18,11 @@ import { unByKey } from "ol/Observable";
 import { boundingExtent } from "ol/extent";
 import { Pixel } from "ol/pixel";
 import { useMapStore } from "@/stores/mapStore";
-import { playTone } from "@/utilities/tone.utils";
+import { useTone } from "@/composables/useTone/useTone";
 
 const { mapBounds, stations, stationUpdates } = useMapStore();
+const { playTone } = useTone();
 
-const play = ref(false);
 const map = ref<HTMLDivElement>();
 const mapInstance = ref<Map>();
 const mapUrl: string =
@@ -49,7 +49,7 @@ watch(
   stationUpdates,
   async () => {
     const update = stationUpdates[0];
-    if (play.value) await playTone(update.note, update.octave);
+    await playTone(update.note, update.octave);
     showStationUpdate([update.lon, update.lat]);
   },
   { deep: true }
@@ -66,24 +66,6 @@ onMounted(async () => {
     }),
   });
 
-  const addMarker = (coordinate: number[], name: string): void => {
-    const marker = new Feature({
-      geometry: new Point(coordinate),
-    });
-    marker.set("name", name);
-    marker.setStyle(
-      new Style({
-        image: new CircleStyle({
-          radius: 2,
-          fill: new Fill({
-            color: "#8F959E",
-          }),
-        }),
-      })
-    );
-    vectorSource.addFeature(marker);
-  };
-
   mapInstance.value.getView().fit(
     boundingExtent([
       [mapBounds.lon.min, mapBounds.lat.min],
@@ -91,8 +73,7 @@ onMounted(async () => {
     ]),
     {
       padding: [20, 20, 20, 20],
-      duration: 1000,
-      maxZoom: 16,
+      maxZoom: 18,
     }
   );
 
@@ -166,6 +147,24 @@ const flash = (feature: Feature): void => {
     vectorContext.drawGeometry(flashGeom);
     mapInstance.value?.render();
   });
+};
+
+const addMarker = (coordinate: number[], name: string): void => {
+  const marker = new Feature({
+    geometry: new Point(coordinate),
+  });
+  marker.set("name", name);
+  marker.setStyle(
+    new Style({
+      image: new CircleStyle({
+        radius: 2,
+        fill: new Fill({
+          color: "#8F959E",
+        }),
+      }),
+    })
+  );
+  vectorSource.addFeature(marker);
 };
 </script>
 <template>

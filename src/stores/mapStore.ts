@@ -9,6 +9,7 @@ import {
   getRandomInterval,
   getStationNotesAndOctaves,
 } from "./mapStore.helpers";
+import { Note, Octave } from "@/composables/useTone/useTone.helpers";
 
 export const useMapStore = defineStore("mapStore", () => {
   const isReady = ref(false);
@@ -36,8 +37,8 @@ export const useMapStore = defineStore("mapStore", () => {
           name: station.name,
           lat: station.lat,
           lon: station.lon,
-          note: station.note,
-          octave: station.octave,
+          note: station.note as Note,
+          octave: station.octave as Octave,
           bikesDelta: status.num_bikes_available - station.num_bikes_available,
         };
         stations.value[status.station_id] = { ...station, ...status };

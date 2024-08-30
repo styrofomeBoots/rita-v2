@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { XMarkIcon, QuestionMarkCircleIcon } from "@heroicons/vue/24/outline";
+import { useTone } from "@/composables/useTone/useTone";
 
 const emit = defineEmits(["show", "close"]);
-const showAbout = ref(false);
-const dialog = ref<HTMLDialogElement>();
-const playSound = ref(false);
-
 defineExpose({
   show: () => show(),
   close: () => close(),
 });
+
+const { soundEnabled, toggleSoundEnabled } = useTone();
+
+const showAbout = ref(false);
+const dialog = ref<HTMLDialogElement>();
 
 const show = (): void => {
   showAbout.value = false;
@@ -55,10 +57,11 @@ onMounted(() => show());
           <label class="label cursor-pointer">
             <span class="label-text">Play Sound</span>
             <input
-              id="playSound"
+              id="soundEnabled"
               type="checkbox"
               class="toggle"
-              :checked="playSound"
+              :checked="soundEnabled"
+              @click="toggleSoundEnabled"
             />
           </label>
         </div>

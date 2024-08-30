@@ -1,4 +1,5 @@
 import { Stations } from "@/api/station.api";
+import { Note, Octave } from "@/composables/useTone/useTone.helpers";
 
 export interface Bounds {
   min: number;
@@ -14,14 +15,13 @@ export interface StationUpdate {
   name: string;
   lat: number;
   lon: number;
-  note: string;
-  octave: number;
+  note: Note;
+  octave: Octave;
   bikesDelta: number;
 }
 
-export const NOTES = ["G", "A", "B", "C", "D", "E", "F"];
-export const PENTATONIC = ["G", "A", "C", "D", "E"];
-export const OCTAVES = [1, 2, 3, 4, 5];
+export const NOTES: Note[] = ["G", "A", "B", "C", "D", "E", "F"];
+export const OCTAVES: Octave[] = [1, 2, 3, 4, 5];
 export const EMPTY_BOUNDS: MapBounds = {
   lat: { min: Infinity, max: -Infinity },
   lon: { min: Infinity, max: -Infinity },

@@ -1,5 +1,6 @@
 import { createAlova } from "alova";
 import { axiosRequestAdapter } from "@alova/adapter-axios";
+import { Note, Octave } from "@/composables/useTone/useTone.helpers";
 
 export interface StationResponse {
   data: { stations: StationInformation[] | StationStatus[] };
@@ -29,8 +30,8 @@ export interface StationStatus {
 }
 
 interface Station extends StationInformation, StationStatus {
-  note: string;
-  octave: number;
+  note: Note;
+  octave: Octave;
 }
 
 export interface Stations {
@@ -68,7 +69,7 @@ export const getStations = async (): Promise<Stations> => {
   const stationStatuses = await getStationStatus();
 
   for (const info of stationInformation) {
-    stations[info.station_id] = { ...info, note: "G", octave: 1 } as Station;
+    stations[info.station_id] = { ...info } as Station;
   }
 
   for (const status of stationStatuses) {

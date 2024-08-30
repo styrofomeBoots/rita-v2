@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { Cog6ToothIcon } from "@heroicons/vue/24/outline";
 import RitaIcon from "@/assets/RitaIcon.vue";
 import StationNotification from "./StationNotification.vue";
@@ -20,9 +20,6 @@ const toggleDrawer = (): void => {
   showMenu.value = !showMenu.value;
 };
 
-onMounted(() => {
-  showModal();
-});
 // daisy .btn class messes with the cog animation???
 // using something crazy for now.
 </script>

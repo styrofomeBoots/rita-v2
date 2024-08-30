@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import * as Tone from "tone";
 import { ref } from "vue";
 
@@ -62,25 +62,25 @@ async function playTone(): Promise<void> {
   if (useHarmony.value) harmonyNote.start();
 }
 
-// function findHarmonyNote(note: string, interval: number): string {
-//   const noteIndex = NOTES.indexOf(note);
-//   const harmonyIndex = (noteIndex + interval) % NOTES.length;
-//   return NOTES[harmonyIndex];
-// }
-// function buildTone(update: { note: string; octave: number; isReturn: boolean }) {
-//   const baseNote = update.note;
-//   const baseOctave = update.octave;
-//   const stepDirection = update.isReturn ? 1 : -1;
-//   const harmonyNote = findHarmonyNote(update.note, harmonyStep.value);
-//   console.log(harmonyNote);
-//   let harmonyOctave: number;
-//   if (baseOctave === 1 || baseOctave === 5) {
-//     harmonyOctave = baseOctave;
-//   } else {
-//     harmonyOctave = baseOctave + stepDirection;
-//   }
-//   return { baseNote, baseOctave, harmonyOctave, harmonyNote };
-// }
+function findHarmonyNote(note: string, interval: number): string {
+  const noteIndex = NOTES.indexOf(note);
+  const harmonyIndex = (noteIndex + interval) % NOTES.length;
+  return NOTES[harmonyIndex];
+}
+function buildTone(update: { note: string; octave: number; isReturn: boolean }) {
+  const baseNote = update.note;
+  const baseOctave = update.octave;
+  const stepDirection = update.isReturn ? 1 : -1;
+  const harmonyNote = findHarmonyNote(update.note, harmonyStep.value);
+  console.log(harmonyNote);
+  let harmonyOctave: number;
+  if (baseOctave === 1 || baseOctave === 5) {
+    harmonyOctave = baseOctave;
+  } else {
+    harmonyOctave = baseOctave + stepDirection;
+  }
+  return { baseNote, baseOctave, harmonyOctave, harmonyNote };
+}
 </script>
 <template>
   <label class="w-full">
@@ -258,4 +258,4 @@ async function playTone(): Promise<void> {
       </div>
     </div>
   </div>
-</template>
+</template> -->
