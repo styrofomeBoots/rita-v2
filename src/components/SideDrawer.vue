@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { Cog6ToothIcon } from "@heroicons/vue/24/outline";
 import RitaIcon from "@/assets/RitaIcon.vue";
 import StationNotification from "./StationNotification.vue";
-import SettingsModal from "./SettingsModal.vue";
+import SettingsModal from "./SettingsModal/SettingsModal.vue";
 import { useMapStore } from "@/stores/mapStore";
 
 const showMenu = ref(false);

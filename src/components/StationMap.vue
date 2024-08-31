@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, Ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch } from "vue";
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
@@ -9,22 +9,20 @@ import Point from "ol/geom/Point";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import Fill from "ol/style/Fill";
-import Overlay from "ol/Overlay";
 import RenderEvent from "ol/render/Event";
 import { Circle as CircleStyle, Style, Stroke } from "ol/style";
 import { easeOut } from "ol/easing.js";
 import { getVectorContext } from "ol/render";
 import { unByKey } from "ol/Observable";
 import { boundingExtent } from "ol/extent";
-import { Pixel } from "ol/pixel";
 import { useMapStore } from "@/stores/mapStore";
 import { useTone } from "@/composables/useTone/useTone";
 
 const { mapBounds, stations, stationUpdates } = useMapStore();
 const { playTone } = useTone();
 
-const map = ref<HTMLDivElement>();
-const mapInstance = ref<Map>();
+const mapRef = ref<HTMLDivElement>();
+const map = ref<Map>();
 const mapUrl: string =
   "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png";
 const tileLayer = new TileLayer({
@@ -34,9 +32,23 @@ const tileLayer = new TileLayer({
 });
 const vectorSource = new VectorSource();
 
-const usePopup = ref(false);
-const popup = ref<HTMLDivElement>() as Ref<HTMLDivElement>;
-const popupStationName = ref("");
+const addMarker = (coordinate: number[], name: string): void => {
+  const marker = new Feature({
+    geometry: new Point(coordinate),
+  });
+  marker.set("name", name);
+  marker.setStyle(
+    new Style({
+      image: new CircleStyle({
+        radius: 2,
+        fill: new Fill({
+          color: "#8F959E",
+        }),
+      }),
+    })
+  );
+  vectorSource.addFeature(marker);
+};
 
 const showStationUpdate = ([lon, lat]): void => {
   const geom = new Point([lon, lat]);
@@ -45,79 +57,7 @@ const showStationUpdate = ([lon, lat]): void => {
   vectorSource.removeFeature(feature);
 };
 
-watch(
-  stationUpdates,
-  async () => {
-    const update = stationUpdates[0];
-    await playTone(update.note, update.octave);
-    showStationUpdate([update.lon, update.lat]);
-  },
-  { deep: true }
-);
-
-onMounted(async () => {
-  mapInstance.value = new Map({
-    target: map.value,
-    controls: [],
-    interactions: [],
-    layers: [tileLayer],
-    view: new View({
-      projection: "EPSG:4326",
-    }),
-  });
-
-  mapInstance.value.getView().fit(
-    boundingExtent([
-      [mapBounds.lon.min, mapBounds.lat.min],
-      [mapBounds.lon.max, mapBounds.lat.max],
-    ]),
-    {
-      padding: [20, 20, 20, 20],
-      maxZoom: 18,
-    }
-  );
-
-  for (const s in stations) {
-    const lon = stations[s].lon;
-    const lat = stations[s].lat;
-    addMarker([lon, lat], stations[s].name);
-  }
-
-  const vectorLayer = new VectorLayer({
-    source: vectorSource,
-  });
-  vectorSource.on("addfeature", e => {
-    if (e.feature) flash(e.feature);
-  });
-  mapInstance.value.addLayer(vectorLayer);
-
-  if (usePopup.value) {
-    const popupOverlay = new Overlay({
-      element: popup.value,
-      positioning: "bottom-center",
-      stopEvent: false,
-      offset: [0, -10],
-    });
-    mapInstance.value.addOverlay(popupOverlay);
-    mapInstance.value.on("pointermove", (event: { pixel: Pixel }) => {
-      const feature = mapInstance.value?.forEachFeatureAtPixel(
-        event.pixel,
-        feature => {
-          return feature;
-        }
-      ) as Feature<Point>;
-      if (feature) {
-        const coordinates = feature.getGeometry()?.getCoordinates();
-        popupOverlay.setPosition(coordinates);
-        popupStationName.value = feature.get("name");
-      } else {
-        popupStationName.value = "";
-      }
-    });
-  }
-});
-
-const flash = (feature: Feature): void => {
+const animateUpdate = (feature: Feature): void => {
   const duration = 3000;
   const start = Date.now();
   const flashGeom = feature.getGeometry()?.clone();
@@ -145,36 +85,66 @@ const flash = (feature: Feature): void => {
     });
     vectorContext.setStyle(style);
     vectorContext.drawGeometry(flashGeom);
-    mapInstance.value?.render();
+    map.value?.render();
   });
 };
 
-const addMarker = (coordinate: number[], name: string): void => {
-  const marker = new Feature({
-    geometry: new Point(coordinate),
+watch(
+  stationUpdates,
+  async () => {
+    const update = stationUpdates[0];
+    await playTone(update.note, update.octave);
+    showStationUpdate([update.lon, update.lat]);
+  },
+  { deep: true }
+);
+
+onMounted(async () => {
+  map.value = new Map({
+    target: mapRef.value,
+    controls: [],
+    layers: [tileLayer],
+    view: new View({
+      projection: "EPSG:4326",
+    }),
   });
-  marker.set("name", name);
-  marker.setStyle(
-    new Style({
-      image: new CircleStyle({
-        radius: 2,
-        fill: new Fill({
-          color: "#8F959E",
-        }),
-      }),
-    })
+
+  // fits the view to coordinates
+  // then, sets the extent to only that area
+  map.value.getView().fit(
+    boundingExtent([
+      [mapBounds.lon.min, mapBounds.lat.min],
+      [mapBounds.lon.max, mapBounds.lat.max],
+    ]),
+    { padding: [20, 20, 20, 20] }
   );
-  vectorSource.addFeature(marker);
-};
+  const extent = map.value.getView().calculateExtent(map.value.getSize());
+  const view = new View({
+    projection: "EPSG:4326",
+    extent: extent,
+    maxZoom: 14,
+  });
+  view.fit(extent);
+  map.value.setView(view);
+
+  // add stations
+  for (const s in stations) {
+    const lon = stations[s].lon;
+    const lat = stations[s].lat;
+    addMarker([lon, lat], stations[s].name);
+  }
+
+  // allows any new features (updates) added to be animated
+  const vectorLayer = new VectorLayer({
+    source: vectorSource,
+  });
+  vectorSource.on("addfeature", e => {
+    if (e.feature) animateUpdate(e.feature);
+  });
+
+  map.value.addLayer(vectorLayer);
+});
 </script>
 <template>
-  <div ref="map" class="h-screen w-screen"></div>
-  <div
-    v-if="usePopup"
-    ref="popup"
-    :class="popupStationName ? 'block' : 'hidden'"
-    class="absolute rounded border border-black bg-white p-1.5"
-  >
-    {{ popupStationName }}
-  </div>
+  <div ref="mapRef" class="h-screen w-screen"></div>
 </template>
