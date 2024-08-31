@@ -1,35 +1,12 @@
-// tone.js instantiates an audio context as soon as the import loads.
-// necessary work around to stop console warnings. 🙃
-export type ToneModule = typeof import("tone");
-let Tone: ToneModule;
-export const importToneJs = async (): Promise<ToneModule> => {
-  const module = await import("tone");
-  Tone = module;
-  return Tone;
-};
-
-export enum SoundFontLibraries {
-  Musyng = "MusyngKite",
-  Fluid = "FluidR3_GM",
-  FatBoy = "FatBoy",
-}
-
-export enum SoundFontInstruments {
-  Clavinet = "clavinet-mp3",
-  Piano = "electric_piano_1-mp3",
-  GuitarHarmonics = "guitar_harmonics-mp3",
-  Cello = "cello-mp3",
-}
-
-export interface BuildNoteOptions {
-  library: SoundFontLibraries;
-  instrument: SoundFontInstruments;
-  fadeIn: number;
-  fadeOut: number;
-}
-
-export type Note = "G" | "A" | "B" | "C" | "D" | "E" | "F";
-export type Octave = 1 | 2 | 3 | 4 | 5;
+import {
+  Note,
+  Octave,
+  BuildNoteOptions,
+  SoundFontLibraries,
+  SoundFontInstruments,
+  ToneType,
+} from "./useTone.types";
+let Tone: ToneType; // import * as Tone from "tone";
 
 export const SCALES = {
   c: {
@@ -40,11 +17,19 @@ export const SCALES = {
 export const OCTAVES = [1, 2, 3, 4, 5];
 export const SF_URL = "https://gleitz.github.io/midi-js-soundfonts";
 
+// tone.js instantiates an audio context as soon as the import loads.
+// necessary work around to stop console warnings. 🙃
+export const importToneJs = async (): Promise<ToneType> => {
+  const module = await import("tone");
+  Tone = module;
+  return Tone;
+};
+
 export const buildNote = (
   note: Note,
   octave: Octave,
   options = {} as BuildNoteOptions
-): InstanceType<ToneModule["Player"]> => {
+): InstanceType<ToneType["Player"]> => {
   const {
     library = SoundFontLibraries.Musyng,
     instrument = SoundFontInstruments.Piano,
@@ -60,7 +45,7 @@ export const buildNote = (
   return baseNote;
 };
 
-const buildReverb = (): InstanceType<ToneModule["Reverb"]> => {
+const buildReverb = (): InstanceType<ToneType["Reverb"]> => {
   const reverb = new Tone.Reverb({
     decay: 20,
     preDelay: 0.01,
@@ -68,3 +53,27 @@ const buildReverb = (): InstanceType<ToneModule["Reverb"]> => {
   }).toDestination();
   return reverb;
 };
+
+// export const getStationNotesAndOctaves = (
+//   stations: Stations,
+//   mapBounds: MapBounds
+// ): Stations => {
+//   const latStep = (mapBounds.lat.max - mapBounds.lat.min) / OCTAVES.length;
+//   const lonStep = (mapBounds.lon.max - mapBounds.lon.min) / NOTES.length;
+
+//   for (const stationId in stations) {
+//     const station = stations[stationId];
+//     const octaveIndex = Math.min(
+//       Math.floor((station.lat - mapBounds.lat.min) / latStep),
+//       OCTAVES.length - 1
+//     );
+//     station.octave = OCTAVES[octaveIndex];
+
+//     const noteIndex = Math.min(
+//       Math.floor((station.lon - mapBounds.lon.min) / lonStep),
+//       NOTES.length - 1
+//     );
+//     station.note = NOTES[noteIndex];
+//   }
+//   return stations;
+// };
