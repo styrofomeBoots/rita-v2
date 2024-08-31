@@ -143,6 +143,12 @@ onMounted(async () => {
   });
 
   map.value.addLayer(vectorLayer);
+
+  // gets extent after zoom
+  map.value.on("moveend", () => {
+    const bounds = map.value?.getView().calculateExtent(map.value.getSize());
+    console.log(bounds);
+  });
 });
 </script>
 <template>

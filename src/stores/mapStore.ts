@@ -68,7 +68,7 @@ export const useMapStore = defineStore("mapStore", () => {
     );
     const update = stagedStationUpdates.value.splice(randomIndex, 1)[0];
     if (update) stationUpdates.value.unshift(update);
-    const randomInterval = getRandomInterval(500, 7500);
+    const randomInterval = getRandomInterval(2000, 7500);
     timeoutId.value = setTimeout(() => {
       processStagedUpdates();
     }, randomInterval) as unknown as number;
