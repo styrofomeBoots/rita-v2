@@ -1,5 +1,6 @@
 // tone.js instantiates an audio context as soon as the import loads.
 // necessary work around to stop console warnings. 🙃
+export type ToneModule = typeof import("tone");
 let Tone: ToneModule;
 export const importToneJs = async (): Promise<ToneModule> => {
   const module = await import("tone");
@@ -27,7 +28,6 @@ export interface BuildNoteOptions {
   fadeOut: number;
 }
 
-export type ToneModule = typeof import("tone");
 export type Note = "G" | "A" | "B" | "C" | "D" | "E" | "F";
 export type Octave = 1 | 2 | 3 | 4 | 5;
 
