@@ -18,9 +18,9 @@ export interface UseTone {
   ) => Promise<void>;
 }
 
+let Tone: ToneModule;
 const soundEnabled = ref(false);
 
-let Tone: ToneModule;
 export const useTone = (): UseTone => {
   const toggleSoundEnabled = async (): Promise<void> => {
     soundEnabled.value = !soundEnabled.value;

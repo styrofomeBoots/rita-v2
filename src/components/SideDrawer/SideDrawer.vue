@@ -3,13 +3,13 @@ import { ref } from "vue";
 import { Cog6ToothIcon } from "@heroicons/vue/24/outline";
 import RitaIcon from "@/assets/RitaIcon.vue";
 import StationNotification from "./StationNotification.vue";
-import SettingsModal from "./SettingsModal/SettingsModal.vue";
-import { useMapStore } from "@/stores/mapStore";
+import SettingsModal from "@/components/SettingsModal/SettingsModal.vue";
+import { useStations } from "@/composables/useStations/useStations";
 
 const showMenu = ref(false);
 const shouldAnimate = ref(false); // keeps animation from popping off on page load
 const modal = ref<InstanceType<typeof SettingsModal>>();
-const { stationUpdates } = useMapStore();
+const { stationUpdates } = useStations();
 
 const showModal = (): void => {
   modal.value?.show();
@@ -19,11 +19,8 @@ const toggleDrawer = (): void => {
   shouldAnimate.value = true;
   showMenu.value = !showMenu.value;
 };
-
-// daisy .btn class messes with the cog animation???
-// using something crazy for now.
 </script>
-
+<!-- daisy .btn class messes with the cog animation??? using something crazy for now. -->
 <template>
   <div
     class="absolute inset-y-0 z-40 w-64 -translate-x-52 overflow-hidden pl-3 pt-3 text-blue-100 transition delay-300 duration-300 ease-in-out"

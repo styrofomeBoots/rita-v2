@@ -14,17 +14,24 @@ import { Circle as CircleStyle, Style, Stroke } from "ol/style";
 import { easeOut } from "ol/easing.js";
 import { getVectorContext } from "ol/render";
 import { unByKey } from "ol/Observable";
-import { boundingExtent } from "ol/extent";
-import { useMapStore } from "@/stores/mapStore";
-import { useTone } from "@/composables/useTone/useTone";
+import { boundingExtent, Extent } from "ol/extent";
+import { useStations } from "@/composables/useStations/useStations";
+import { Coordinate } from "ol/coordinate";
+// import { useTone } from "@/composables/useTone/useTone";
 
-const { mapBounds, stations, stationUpdates } = useMapStore();
-const { playTone } = useTone();
+// coordinates are [lon, lat]
+// extent is [minLon (west), minLat (south), maxLon (east), maxLat (west)]
+
+const { stationBounds, stations, stationUpdate } = useStations();
+// const { playTone } = useTone();
+
+const mapUrl: string =
+  "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png";
 
 const mapRef = ref<HTMLDivElement>();
 const map = ref<Map>();
-const mapUrl: string =
-  "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png";
+const currentExtent = ref<Extent | null>(null);
+
 const tileLayer = new TileLayer({
   source: new XYZ({
     url: mapUrl,
@@ -32,26 +39,28 @@ const tileLayer = new TileLayer({
 });
 const vectorSource = new VectorSource();
 
-const addMarker = (coordinate: number[], name: string): void => {
-  const marker = new Feature({
-    geometry: new Point(coordinate),
-  });
-  marker.set("name", name);
-  marker.setStyle(
-    new Style({
-      image: new CircleStyle({
-        radius: 2,
-        fill: new Fill({
-          color: "#8F959E",
+const addStationMarkers = (): void => {
+  for (const s in stations.value) {
+    const marker = new Feature({
+      geometry: new Point(stations.value[s].coordinate),
+    });
+    marker.set("name", stations.value[s].name);
+    marker.setStyle(
+      new Style({
+        image: new CircleStyle({
+          radius: 2,
+          fill: new Fill({
+            color: "#8F959E",
+          }),
         }),
-      }),
-    })
-  );
-  vectorSource.addFeature(marker);
+      })
+    );
+    vectorSource.addFeature(marker);
+  }
 };
 
-const showStationUpdate = ([lon, lat]): void => {
-  const geom = new Point([lon, lat]);
+const showStationUpdate = (coordinate: Coordinate): void => {
+  const geom = new Point(coordinate);
   const feature = new Feature(geom);
   vectorSource.addFeature(feature);
   vectorSource.removeFeature(feature);
@@ -89,12 +98,31 @@ const animateUpdate = (feature: Feature): void => {
   });
 };
 
+// fits the view to coordinates
+// then, sets the extent to only that area
+const setMapBoundingExtent = (): void => {
+  if (!map.value || !stationBounds.value) return;
+  map.value
+    .getView()
+    .fit(boundingExtent([stationBounds.value.min, stationBounds.value?.max]), {
+      padding: [20, 20, 20, 20],
+    });
+  const extent = map.value.getView().calculateExtent(map.value.getSize()) as Extent;
+  const view = new View({
+    projection: "EPSG:4326",
+    extent: extent,
+    maxZoom: 14,
+  });
+  view.fit(extent);
+  map.value.setView(view);
+};
+
 watch(
-  stationUpdates,
-  async () => {
-    const update = stationUpdates[0];
-    await playTone(update.note, update.octave);
-    showStationUpdate([update.lon, update.lat]);
+  stationUpdate,
+  () => {
+    if (stationUpdate.value === null) return;
+    // await playTone(update.note, update.octave);
+    showStationUpdate(stationUpdate.value.coordinate);
   },
   { deep: true }
 );
@@ -109,30 +137,8 @@ onMounted(async () => {
     }),
   });
 
-  // fits the view to coordinates
-  // then, sets the extent to only that area
-  map.value.getView().fit(
-    boundingExtent([
-      [mapBounds.lon.min, mapBounds.lat.min],
-      [mapBounds.lon.max, mapBounds.lat.max],
-    ]),
-    { padding: [20, 20, 20, 20] }
-  );
-  const extent = map.value.getView().calculateExtent(map.value.getSize());
-  const view = new View({
-    projection: "EPSG:4326",
-    extent: extent,
-    maxZoom: 14,
-  });
-  view.fit(extent);
-  map.value.setView(view);
-
-  // add stations
-  for (const s in stations) {
-    const lon = stations[s].lon;
-    const lat = stations[s].lat;
-    addMarker([lon, lat], stations[s].name);
-  }
+  setMapBoundingExtent();
+  addStationMarkers();
 
   // allows any new features (updates) added to be animated
   const vectorLayer = new VectorLayer({
@@ -146,8 +152,9 @@ onMounted(async () => {
 
   // gets extent after zoom
   map.value.on("moveend", () => {
-    const bounds = map.value?.getView().calculateExtent(map.value.getSize());
-    console.log(bounds);
+    currentExtent.value = map.value
+      ?.getView()
+      .calculateExtent(map.value.getSize()) as Extent;
   });
 });
 </script>

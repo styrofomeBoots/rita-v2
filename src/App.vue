@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import SideDrawer from "./components/SideDrawer.vue";
+import SideDrawer from "./components/SideDrawer/SideDrawer.vue";
 import StationMap from "./components/StationMap.vue";
-import { useMapStore } from "./stores/mapStore";
+import { useStations } from "./composables/useStations/useStations";
 
-const mapStore = useMapStore();
+const { isReady } = useStations();
 </script>
 
 <template>
   <div class="h-screen">
     <SideDrawer />
-    <StationMap v-if="mapStore.isReady" />
+    <StationMap v-if="isReady" />
   </div>
 </template>
