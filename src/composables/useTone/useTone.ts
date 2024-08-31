@@ -4,7 +4,7 @@ import {
   Note,
   Octave,
   BuildNoteOptions,
-  importTone,
+  importToneJs,
   ToneModule,
 } from "./useTone.helpers";
 
@@ -25,7 +25,7 @@ export const useTone = (): UseTone => {
   const toggleSoundEnabled = async (): Promise<void> => {
     soundEnabled.value = !soundEnabled.value;
     if (soundEnabled.value && !Tone) {
-      Tone = await importTone();
+      Tone = await importToneJs();
     }
   };
 

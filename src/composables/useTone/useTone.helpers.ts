@@ -1,3 +1,12 @@
+// tone.js instantiates an audio context as soon as the import loads.
+// necessary work around to stop console warnings. 🙃
+let Tone: ToneModule;
+export const importToneJs = async (): Promise<ToneModule> => {
+  const module = await import("tone");
+  Tone = module;
+  return Tone;
+};
+
 export enum SoundFontLibraries {
   Musyng = "MusyngKite",
   Fluid = "FluidR3_GM",
@@ -30,15 +39,6 @@ export const SCALES = {
 };
 export const OCTAVES = [1, 2, 3, 4, 5];
 export const SF_URL = "https://gleitz.github.io/midi-js-soundfonts";
-
-// tone.js instantiates an audio context as soon as the import loads.
-// necessary work around to stop console warnings. 🙃
-let Tone: ToneModule;
-export const importTone = async (): Promise<ToneModule> => {
-  const module = await import("tone");
-  Tone = module;
-  return Tone;
-};
 
 export const buildNote = (
   note: Note,
