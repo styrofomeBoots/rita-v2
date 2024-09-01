@@ -1,15 +1,12 @@
+import { Coordinate } from "ol/coordinate";
 import { Extent } from "ol/extent";
 import { Ref } from "vue";
 
 export interface UseTone {
   soundEnabled: Ref<boolean>;
   toggleSoundEnabled: () => void;
-  playTone: (
-    note: Note,
-    octave: Octave,
-    options?: BuildNoteOptions
-  ) => Promise<void>;
-  setSteps: (extent: Extent) => void;
+  playTone: (coordinate: Coordinate, options?: BuildNoteOptions) => Promise<void>;
+  setToneSteps: (extent: Extent) => void;
 }
 
 export type ToneType = typeof import("tone");

@@ -15,15 +15,16 @@ import { easeOut } from "ol/easing.js";
 import { getVectorContext } from "ol/render";
 import { unByKey } from "ol/Observable";
 import { boundingExtent, Extent } from "ol/extent";
-import { useStations } from "@/composables/useStations/useStations";
 import { Coordinate } from "ol/coordinate";
-// import { useTone } from "@/composables/useTone/useTone";
+import { useStations } from "@/composables/useStations/useStations";
+import { useTone } from "@/composables/useTone/useTone";
 
 // coordinates are [lon, lat]
-// extent is [minLon (west), minLat (south), maxLon (east), maxLat (west)]
+// extent is [lonMin (west), latMin (south), lonMax (east), latMax (west)]
 
-const { stationBounds, stations, stationUpdate } = useStations();
-// const { playTone } = useTone();
+const { stationBounds, stations, stationUpdate, updateStationBounds } =
+  useStations();
+const { playTone, setToneSteps } = useTone();
 
 const mapUrl: string =
   "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png";
@@ -111,18 +112,29 @@ const setMapBoundingExtent = (): void => {
   const view = new View({
     projection: "EPSG:4326",
     extent: extent,
-    maxZoom: 14,
+    maxZoom: 16,
   });
   view.fit(extent);
   map.value.setView(view);
+  currentExtent.value = extent;
 };
 
 watch(
   stationUpdate,
-  () => {
-    if (stationUpdate.value === null) return;
-    // await playTone(update.note, update.octave);
+  async () => {
+    if (!stationUpdate.value) return;
+    await playTone(stationUpdate.value.coordinate);
     showStationUpdate(stationUpdate.value.coordinate);
+  },
+  { deep: true }
+);
+
+watch(
+  currentExtent,
+  () => {
+    if (!currentExtent.value) return;
+    updateStationBounds(currentExtent.value);
+    setToneSteps(currentExtent.value);
   },
   { deep: true }
 );
@@ -139,6 +151,10 @@ onMounted(async () => {
 
   setMapBoundingExtent();
   addStationMarkers();
+  if (currentExtent.value) {
+    updateStationBounds(currentExtent.value);
+    setToneSteps(currentExtent.value);
+  }
 
   // allows any new features (updates) added to be animated
   const vectorLayer = new VectorLayer({

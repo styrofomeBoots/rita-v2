@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { Cog6ToothIcon } from "@heroicons/vue/24/outline";
-import RitaIcon from "@/assets/RitaIcon.vue";
+import RitaIcon from "./RitaIcon.vue";
 import StationNotification from "./StationNotification.vue";
 import SettingsModal from "@/components/SettingsModal/SettingsModal.vue";
 import { useStations } from "@/composables/useStations/useStations";
@@ -20,7 +20,7 @@ const toggleDrawer = (): void => {
   showMenu.value = !showMenu.value;
 };
 </script>
-<!-- daisy .btn class messes with the cog animation??? using something crazy for now. -->
+<!-- daisy .btn class messes with the cog animation. -->
 <template>
   <div
     class="absolute inset-y-0 z-40 w-64 -translate-x-52 overflow-hidden pl-3 pt-3 text-blue-100 transition delay-300 duration-300 ease-in-out"

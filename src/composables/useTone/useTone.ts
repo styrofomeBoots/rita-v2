@@ -1,16 +1,25 @@
 import { ref } from "vue";
-import { buildNote, importToneJs, SCALES, OCTAVES } from "./useTone.helpers";
-import { UseTone, Note, Octave, BuildNoteOptions, ToneType } from "./useTone.types";
+import {
+  importToneJs,
+  getToneIndex,
+  buildNote,
+  SCALES,
+  OCTAVES,
+} from "./useTone.helpers";
+import { UseTone, BuildNoteOptions, ToneType, Octave, Note } from "./useTone.types";
 import { Extent } from "ol/extent";
+import { Coordinate } from "ol/coordinate";
 let Tone: ToneType; // import * as Tone from "tone";
 
 // coordinates are [lon, lat]
-// extent is [minLon (west), minLat (south), maxLon (east), maxLat (west)]
+// extent is [lonMin (west), latMin (south), lonMax (east), latMax (west)]
 
 const soundEnabled = ref(false);
 const scale = ref(SCALES.c.pentatonic);
 const scaleStep = ref(0);
 const octaveStep = ref(0);
+const scaleMin = ref(0);
+const octaveMin = ref(0);
 
 export const useTone = (): UseTone => {
   const toggleSoundEnabled = async (): Promise<void> => {
@@ -22,24 +31,37 @@ export const useTone = (): UseTone => {
   };
 
   const playTone = async (
-    note: Note,
-    octave: Octave,
+    coordinate: Coordinate,
     options = {} as BuildNoteOptions
   ): Promise<void> => {
     if (!soundEnabled.value) return;
+    const noteIndex = getToneIndex(
+      coordinate[0],
+      scaleMin.value,
+      scaleStep.value,
+      scale.value.length
+    );
+    const octaveIndex = getToneIndex(
+      coordinate[1],
+      octaveMin.value,
+      octaveStep.value,
+      OCTAVES.length
+    );
+    const note = scale.value[noteIndex] as Note;
+    const octave = OCTAVES[octaveIndex] as Octave;
     const baseNote = buildNote(note, octave, options);
     await Tone.loaded();
     baseNote.start();
   };
 
-  const setSteps = (extent: Extent): void => {
-    const lonMin = extent[0];
-    const latMin = extent[1];
+  const setToneSteps = (extent: Extent): void => {
+    scaleMin.value = extent[0];
+    octaveMin.value = extent[1];
     const lonMax = extent[2];
     const latMax = extent[3];
-    scaleStep.value = (lonMax - lonMin) / scale.value.length;
-    octaveStep.value = (latMax - latMin) / OCTAVES.length;
+    scaleStep.value = (lonMax - scaleMin.value) / scale.value.length;
+    octaveStep.value = (latMax - octaveMin.value) / OCTAVES.length;
   };
 
-  return { soundEnabled, toggleSoundEnabled, playTone, setSteps };
+  return { soundEnabled, toggleSoundEnabled, playTone, setToneSteps };
 };

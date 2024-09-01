@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import {
   UseStations,
   StationBounds,
@@ -11,7 +11,9 @@ import {
   getStationStatuses,
   getStationBounds,
   getRandomInterval,
+  isWithinStationBounds,
 } from "./useStations.helpers";
+import { Extent } from "ol/extent";
 
 const isReady = ref(false);
 const stations = ref<Stations>({});
@@ -35,6 +37,17 @@ const clearTimeoutId = (): void => {
   timeoutId.value = null;
 };
 
+watch(stationBounds, () => {
+  if (!stationBounds.value) return;
+  stagedStationUpdates.value = stagedStationUpdates.value.filter(update =>
+    isWithinStationBounds(
+      update.coordinate[0],
+      update.coordinate[1],
+      stationBounds.value
+    )
+  );
+});
+
 export const useStations = (): UseStations => {
   const setupStations = async (): Promise<void> => {
     const stationData = await getStations();
@@ -44,7 +57,7 @@ export const useStations = (): UseStations => {
     isReady.value = true;
   };
 
-  const updateStations = async (): Promise<void> => {
+  const getStationUpdates = async (): Promise<void> => {
     const stationData = await getStationStatuses();
     if (stationData.last_updated === lastStationUpdate.value) return;
 
@@ -53,6 +66,10 @@ export const useStations = (): UseStations => {
       if (!stations.value[status.station_id]) continue;
 
       const station = stations.value[status.station_id];
+      if (!isWithinStationBounds(station.lon, station.lat, stationBounds.value)) {
+        continue;
+      }
+
       if (status.num_bikes_available === station.num_bikes_available) continue;
 
       stations.value[status.station_id] = { ...station, ...status };
@@ -73,12 +90,22 @@ export const useStations = (): UseStations => {
       clearTimeoutId();
       return;
     }
-
-    stationUpdate.value = stagedStationUpdates.value.splice(
+    const update = stagedStationUpdates.value.splice(
       Math.floor(Math.random() * stagedStationUpdates.value.length),
       1
     )[0];
+    if (
+      !isWithinStationBounds(
+        update.coordinate[0],
+        update.coordinate[1],
+        stationBounds.value
+      )
+    )
+      return;
+
+    stationUpdate.value = update;
     if (stationUpdate.value) stationUpdates.value.unshift(stationUpdate.value);
+    if (stationUpdates.value.length > 2000) stationUpdates.value.length = 30;
 
     const randomInterval = getRandomInterval(2000, 7500);
     timeoutId.value = setTimeout(() => {
@@ -88,7 +115,17 @@ export const useStations = (): UseStations => {
 
   const startStationPolling = (): void => {
     setupStations();
-    pollingInterval.value = setInterval(updateStations, 5000) as unknown as number;
+    pollingInterval.value = setInterval(
+      getStationUpdates,
+      5000
+    ) as unknown as number;
+  };
+
+  const updateStationBounds = (extent: Extent): void => {
+    stationBounds.value = {
+      min: [extent[0], extent[1]],
+      max: [extent[2], extent[3]],
+    };
   };
 
   const resetStations = (): void => {
@@ -117,8 +154,9 @@ export const useStations = (): UseStations => {
     stationUpdates,
     stationBounds,
     setupStations,
-    updateStations,
+    getStationUpdates,
     startStationPolling,
+    updateStationBounds,
     resetStations,
   };
 };

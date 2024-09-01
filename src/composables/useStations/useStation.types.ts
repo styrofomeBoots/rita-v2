@@ -1,5 +1,6 @@
 import { Ref } from "vue";
 import { Coordinate } from "ol/coordinate";
+import { Extent } from "ol/extent";
 
 // ---------- COORDINATES ARE [LON, LAT] ----------
 
@@ -10,8 +11,9 @@ export interface UseStations {
   stationUpdates: Ref<StationUpdate[]>;
   stationBounds: Ref<StationBounds | null>;
   setupStations: () => Promise<void>;
-  updateStations: () => Promise<void>;
+  getStationUpdates: () => Promise<void>;
   startStationPolling: () => void;
+  updateStationBounds: (extent: Extent) => void;
   resetStations: () => void;
 }
 

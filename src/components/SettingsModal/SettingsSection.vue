@@ -3,9 +3,12 @@ import { useTone } from "@/composables/useTone/useTone";
 const { soundEnabled, toggleSoundEnabled } = useTone();
 </script>
 <template>
-  <div class="form-control">
+  <div class="px-5 pb-2 text-center text-sm">
+    an audio/visual representation of the dc bike share program
+  </div>
+  <div class="form-control px-7">
     <label class="label cursor-pointer">
-      <span class="label-text">Play Sound</span>
+      <span class="">enable sound</span>
       <input
         id="soundEnabled"
         type="checkbox"

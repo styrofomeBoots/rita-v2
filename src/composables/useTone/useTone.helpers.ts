@@ -25,6 +25,19 @@ export const importToneJs = async (): Promise<ToneType> => {
   return Tone;
 };
 
+export const getToneIndex = (
+  coordinate: number,
+  coordinateMin: number,
+  step: number,
+  arrayLen: number
+): number => {
+  const index = Math.min(
+    Math.floor((coordinate - coordinateMin) / step),
+    arrayLen - 1
+  );
+  return index;
+};
+
 export const buildNote = (
   note: Note,
   octave: Octave,
@@ -53,27 +66,3 @@ const buildReverb = (): InstanceType<ToneType["Reverb"]> => {
   }).toDestination();
   return reverb;
 };
-
-// export const getStationNotesAndOctaves = (
-//   stations: Stations,
-//   mapBounds: MapBounds
-// ): Stations => {
-//   const latStep = (mapBounds.lat.max - mapBounds.lat.min) / OCTAVES.length;
-//   const lonStep = (mapBounds.lon.max - mapBounds.lon.min) / NOTES.length;
-
-//   for (const stationId in stations) {
-//     const station = stations[stationId];
-//     const octaveIndex = Math.min(
-//       Math.floor((station.lat - mapBounds.lat.min) / latStep),
-//       OCTAVES.length - 1
-//     );
-//     station.octave = OCTAVES[octaveIndex];
-
-//     const noteIndex = Math.min(
-//       Math.floor((station.lon - mapBounds.lon.min) / lonStep),
-//       NOTES.length - 1
-//     );
-//     station.note = NOTES[noteIndex];
-//   }
-//   return stations;
-// };

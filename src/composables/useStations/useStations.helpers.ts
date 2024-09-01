@@ -9,6 +9,9 @@ import {
   StationStatus,
 } from "./useStation.types";
 
+// coordinates are [lon, lat]
+// extent is [lonMin (west), latMin (south), lonMax (east), latMax (west)]
+
 const alova = createAlova({
   requestAdapter: axiosRequestAdapter(),
   cacheFor: null,
@@ -62,27 +65,38 @@ export const getStations = async (): Promise<{
 };
 
 export const getStationBounds = (stations: Stations): StationBounds => {
-  let minLat = Infinity;
-  let maxLat = -Infinity;
-  let minLon = Infinity;
-  let maxLon = -Infinity;
+  let lonMin = Infinity;
+  let latMin = Infinity;
+  let lonMax = -Infinity;
+  let latMax = -Infinity;
 
   for (const stationId in stations) {
     const { lat, lon } = stations[stationId];
-    if (lat > maxLat) maxLat = lat;
-    if (lat < minLat) minLat = lat;
-    if (lon > maxLon) maxLon = lon;
-    if (lon < minLon) minLon = lon;
+    if (lon < lonMin) lonMin = lon;
+    if (lat < latMin) latMin = lat;
+    if (lon > lonMax) lonMax = lon;
+    if (lat > latMax) latMax = lat;
   }
 
   return {
-    min: [minLon, minLat],
-    max: [maxLon, maxLat],
+    min: [lonMin, latMin],
+    max: [lonMax, latMax],
   };
 };
 
 export const getRandomInterval = (min: number, max: number): number => {
   return Math.random() * (max - min) + min;
+};
+
+export const isWithinStationBounds = (
+  lon: number,
+  lat: number,
+  stationBounds: StationBounds | null
+): boolean => {
+  if (stationBounds === null) return false;
+  const [lonMin, latMin] = stationBounds.min;
+  const [lonMax, latMax] = stationBounds.max;
+  return lon >= lonMin && lon <= lonMax && lat >= latMin && lat <= latMax;
 };
 
 // export interface City {
