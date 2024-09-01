@@ -53,16 +53,31 @@ export const buildNote = (
   const baseNote = new Tone.Player(noteUrl);
   baseNote.fadeIn = fadeIn;
   baseNote.fadeOut = fadeOut;
-  const reverb = buildReverb();
+  const reverb = addReverb();
   baseNote.connect(reverb);
   return baseNote;
 };
 
-const buildReverb = (): InstanceType<ToneType["Reverb"]> => {
+export const getBackingNote = (): InstanceType<ToneType["Synth"]> => {
+  return new Tone.Synth({
+    volume: -40,
+    envelope: {
+      attack: 2,
+      attackCurve: "exponential",
+      decay: 2,
+      decayCurve: "linear",
+      release: 3,
+      releaseCurve: "linear",
+      sustain: 0.5,
+    },
+  }).toDestination();
+};
+
+const addReverb = (): InstanceType<ToneType["Reverb"]> => {
   const reverb = new Tone.Reverb({
     decay: 20,
-    preDelay: 0.01,
-    wet: 0.1,
+    preDelay: 0.1,
+    wet: 0.5,
   }).toDestination();
   return reverb;
 };

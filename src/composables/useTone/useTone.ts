@@ -3,6 +3,7 @@ import {
   importToneJs,
   getToneIndex,
   buildNote,
+  getBackingNote,
   SCALES,
   OCTAVES,
 } from "./useTone.helpers";
@@ -50,7 +51,9 @@ export const useTone = (): UseTone => {
     const note = scale.value[noteIndex] as Note;
     const octave = OCTAVES[octaveIndex] as Octave;
     const baseNote = buildNote(note, octave, options);
+    const backingNote = getBackingNote();
     await Tone.loaded();
+    backingNote.triggerAttackRelease(`${note}${octave}`, 4);
     baseNote.start();
   };
 
