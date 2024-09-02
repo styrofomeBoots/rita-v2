@@ -23,7 +23,7 @@ const toggleDrawer = (): void => {
 <!-- daisy .btn class messes with the cog animation. -->
 <template>
   <div
-    class="absolute inset-y-0 z-40 w-64 -translate-x-52 overflow-hidden pl-3 pt-3 text-blue-100 transition delay-300 duration-300 ease-in-out"
+    class="absolute inset-y-0 z-40 w-64 -translate-x-52 overflow-hidden pl-3 pt-3 transition delay-300 duration-300 ease-in-out"
     :class="{
       'translate-x-0': showMenu,
     }"
@@ -38,13 +38,13 @@ const toggleDrawer = (): void => {
         }"
         @click="showModal"
       >
-        <Cog6ToothIcon class="size-6" />
+        <Cog6ToothIcon class="size-6 text-base" />
       </button>
       <button
         class="btn-circle btn-ghost btn-sm absolute z-40 inline-flex items-center justify-center"
         @click="toggleDrawer"
       >
-        <RitaIcon />
+        <RitaIcon class="text-base" />
       </button>
     </div>
     <div
