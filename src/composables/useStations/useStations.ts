@@ -8,21 +8,23 @@ import {
   StationStatus,
 } from "./useStation.types";
 import {
-  cities,
   getStations,
   getStationStatuses,
   getStationBounds,
   getRandomInterval,
   isWithinStationBounds,
+  getSelectableCities,
 } from "./useStations.helpers";
 import { Extent } from "ol/extent";
 
 const isReady = ref(false);
 
 const selectedCity = ref<City>({
-  city: "washington dc",
-  url: "https://gbfs.capitalbikeshare.com/gbfs/en",
+  city: "bay area",
+  url: "https://gbfs.baywheels.com/gbfs/en",
+  browsers: ["chrome", "safari"],
 });
+const selectableCities = ref<City[]>([]);
 const stations = ref<Stations>({});
 const lastStationUpdate = ref(0);
 const stagedStationUpdates = ref<StationUpdate[]>([]);
@@ -66,6 +68,7 @@ watch(
 
 export const useStations = (): UseStations => {
   const setupStations = async (): Promise<void> => {
+    selectableCities.value = getSelectableCities();
     const stationData = await getStations(selectedCity.value.url);
     stations.value = stationData.stations;
     lastStationUpdate.value = stationData.lastStationUpdate;
@@ -159,7 +162,7 @@ export const useStations = (): UseStations => {
   return {
     isReady,
     stations,
-    cities,
+    selectableCities,
     selectedCity,
     stationUpdate,
     stationUpdates,

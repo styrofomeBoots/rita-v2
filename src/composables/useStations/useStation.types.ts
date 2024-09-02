@@ -5,13 +5,14 @@ import { Extent } from "ol/extent";
 export interface City {
   city: string;
   url: string;
+  browsers: string[];
 }
 
 export interface UseStations {
   isReady: Ref<boolean>;
   stations: Ref<Stations>;
   selectedCity: Ref<City>;
-  cities: City[];
+  selectableCities: Ref<City[]>;
   stationUpdate: Ref<StationUpdate | null>;
   stationUpdates: Ref<StationUpdate[]>;
   stationBounds: Ref<StationBounds | null>;

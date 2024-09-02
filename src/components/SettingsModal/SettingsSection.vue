@@ -3,7 +3,7 @@ import { useTone } from "@/composables/useTone/useTone";
 import { useStations } from "@/composables/useStations/useStations";
 
 const { soundEnabled, toggleSoundEnabled } = useTone();
-const { selectedCity, cities } = useStations();
+const { selectedCity, selectableCities } = useStations();
 </script>
 <template>
   <div class="px-5 pb-2 text-center text-sm">
@@ -21,7 +21,7 @@ const { selectedCity, cities } = useStations();
       />
     </label>
     <select id="selectedCity" v-model="selectedCity" class="select select-sm w-full">
-      <option v-for="city in cities" :key="city.city" :value="city">
+      <option v-for="city in selectableCities" :key="city.city" :value="city">
         {{ city.city }}
       </option>
     </select>

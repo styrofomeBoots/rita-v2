@@ -44,7 +44,7 @@ const toggleDrawer = (): void => {
         class="btn-circle btn-sm absolute z-40 inline-flex items-center justify-center"
         @click="toggleDrawer"
       >
-        <RitaIcon />
+        <RitaIcon class="size-7" />
       </button>
     </div>
     <div
