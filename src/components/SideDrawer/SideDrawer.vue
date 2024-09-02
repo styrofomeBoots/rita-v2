@@ -30,7 +30,7 @@ const toggleDrawer = (): void => {
   >
     <div class="flex justify-end">
       <button
-        class="btn-circle btn-ghost btn-sm absolute z-40 inline-flex items-center justify-center"
+        class="btn-circle btn-sm absolute z-40 inline-flex items-center justify-center"
         :class="{
           '-translate-x-10 translate-y-0 animate-cog-slide-open': showMenu,
           'translate-y-10': !showMenu,
@@ -38,13 +38,13 @@ const toggleDrawer = (): void => {
         }"
         @click="showModal"
       >
-        <Cog6ToothIcon class="size-6 text-base" />
+        <Cog6ToothIcon class="size-6" />
       </button>
       <button
-        class="btn-circle btn-ghost btn-sm absolute z-40 inline-flex items-center justify-center"
+        class="btn-circle btn-sm absolute z-40 inline-flex items-center justify-center"
         @click="toggleDrawer"
       >
-        <RitaIcon class="text-base" />
+        <RitaIcon />
       </button>
     </div>
     <div

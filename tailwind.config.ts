@@ -58,6 +58,7 @@ export default {
   },
   plugins: [require("daisyui")],
   daisyui: {
+    darkTheme: "forest",
     themes: [
       {
         sunset: {

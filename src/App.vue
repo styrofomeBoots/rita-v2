@@ -8,7 +8,7 @@ startStationPolling();
 </script>
 
 <template>
-  <div class="h-screen">
+  <div class="h-dvh">
     <SideDrawer />
     <StationMap v-if="isReady" />
   </div>

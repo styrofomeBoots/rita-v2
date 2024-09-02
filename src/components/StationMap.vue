@@ -175,5 +175,5 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <div ref="mapRef" class="h-screen w-screen"></div>
+  <div ref="mapRef" class="h-dvh w-dvw"></div>
 </template>
