@@ -65,6 +65,10 @@ export default {
           ".btn:focus-visible": {
             outline: "none",
           },
+          ".select:focus": {
+            outline: "none",
+            border: "none",
+          },
         },
       },
     ],

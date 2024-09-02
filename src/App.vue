@@ -3,7 +3,8 @@ import SideDrawer from "./components/SideDrawer/SideDrawer.vue";
 import StationMap from "./components/StationMap.vue";
 import { useStations } from "./composables/useStations/useStations";
 
-const { isReady } = useStations();
+const { isReady, startStationPolling } = useStations();
+startStationPolling();
 </script>
 
 <template>

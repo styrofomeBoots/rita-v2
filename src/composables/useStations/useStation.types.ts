@@ -2,11 +2,16 @@ import { Ref } from "vue";
 import { Coordinate } from "ol/coordinate";
 import { Extent } from "ol/extent";
 
-// ---------- COORDINATES ARE [LON, LAT] ----------
+export interface City {
+  city: string;
+  url: string;
+}
 
 export interface UseStations {
   isReady: Ref<boolean>;
   stations: Ref<Stations>;
+  selectedCity: Ref<City>;
+  cities: City[];
   stationUpdate: Ref<StationUpdate | null>;
   stationUpdates: Ref<StationUpdate[]>;
   stationBounds: Ref<StationBounds | null>;

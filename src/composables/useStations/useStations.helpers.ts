@@ -1,6 +1,7 @@
 import { createAlova } from "alova";
 import { axiosRequestAdapter } from "@alova/adapter-axios";
 import {
+  City,
   Station,
   Stations,
   StationResponse,
@@ -23,27 +24,29 @@ const alova = createAlova({
   },
 });
 
-export const getStationInformation = async (): Promise<StationResponse> => {
+const getStationInformation = async (url: City["url"]): Promise<StationResponse> => {
   const response = await alova.Get<StationResponse>(
-    "https://gbfs.capitalbikeshare.com/gbfs/en/station_information.json"
+    `${url}/station_information.json`
   );
   return response;
 };
 
-export const getStationStatuses = async (): Promise<StationResponse> => {
-  const response = await alova.Get<StationResponse>(
-    "https://gbfs.capitalbikeshare.com/gbfs/en/station_status.json"
-  );
+export const getStationStatuses = async (
+  url: City["url"]
+): Promise<StationResponse> => {
+  const response = await alova.Get<StationResponse>(`${url}/station_status.json`);
   return response;
 };
 
-export const getStations = async (): Promise<{
+export const getStations = async (
+  url: City["url"]
+): Promise<{
   stations: Stations;
   lastStationUpdate: number;
 }> => {
   const stations: Stations = {};
-  const infoResponse = await getStationInformation();
-  const statusesResponse = await getStationStatuses();
+  const infoResponse = await getStationInformation(url);
+  const statusesResponse = await getStationStatuses(url);
   const stationInformation = infoResponse.data.stations as StationInformation[];
   const stationStatuses = statusesResponse.data.stations as StationStatus[];
   const lastStationUpdate = statusesResponse.last_updated;
@@ -99,63 +102,27 @@ export const isWithinStationBounds = (
   return lon >= lonMin && lon <= lonMax && lat >= latMin && lat <= latMax;
 };
 
-// export interface City {
-//   name: string;
-//   slug: string;
-//   mapZoom: number;
-//   mapCenter: [number, number];
-//   isAvailable: boolean;
-// }
-// // spell-checker:disable
-// export const cities: City[] = [
-//   {
-//     name: "bay area",
-//     slug: "baywheels",
-//     mapZoom: 12.5,
-//     mapCenter: [-122.364474, 37.790515],
-//     isAvailable: false,
-//   },
-//   {
-//     name: "chicago",
-//     slug: "divvybikes",
-//     mapZoom: 13.1,
-//     mapCenter: [-87.629227, 41.876942],
-//     isAvailable: false,
-//   },
-//   {
-//     name: "columbus",
-//     slug: "cogobikeshare",
-//     mapZoom: 13.1,
-//     mapCenter: [-82.999207, 39.959423],
-//     isAvailable: false,
-//   },
-//   {
-//     name: "washington dc",
-//     slug: "capitalbikeshare",
-//     mapZoom: 13.1,
-//     mapCenter: [-77.036548, 38.892112],
-//     isAvailable: false,
-//   },
-//   {
-//     name: "minneapolis",
-//     slug: "niceridemn",
-//     mapZoom: 13.1,
-//     mapCenter: [-93.269558, 44.969344],
-//     isAvailable: false,
-//   },
-//   {
-//     name: "new york city",
-//     slug: "citibike",
-//     mapZoom: 13.1,
-//     mapCenter: [-74.007902, 40.707783],
-//     isAvailable: false,
-//   },
-//   {
-//     name: "portland",
-//     slug: "biketownpdx",
-//     mapZoom: 13.1,
-//     mapCenter: [-122.679884, 45.512515],
-//     isAvailable: false,
-//   },
-// ];
-// // spell-checker:enable
+// spell-checker:disable
+export const cities: City[] = [
+  { city: "austin", url: "https://gbfs.bcycle.com/bcycle_austin" },
+  {
+    city: "barcelona",
+    url: "https://barcelona.publicbikesystem.net/customer/gbfs/v2/en",
+  },
+  { city: "bay area", url: "https://gbfs.baywheels.com/gbfs/en" },
+  { city: "chicago", url: "https://gbfs.divvybikes.com/gbfs/en" },
+  { city: "columbus", url: "https://gbfs.cogobikeshare.com/gbfs/en" },
+  { city: "denver", url: "https://gbfs.lyft.com/gbfs/2.3/den/en" },
+  { city: "los angeles", url: "https://gbfs.bcycle.com/bcycle_lametro" },
+  { city: "new york city", url: "https://gbfs.lyft.com/gbfs/2.3/bkn/en" },
+  { city: "oslo", url: "https://api.entur.io/mobility/v2/gbfs/v3/oslobysykkel" },
+  { city: "philedelphia", url: "https://gbfs.bcycle.com/bcycle_indego" },
+  { city: "portland", url: "https://gbfs.biketownpdx.com/gbfs/en" },
+  { city: "tel aviv", url: "https://gbfs.api.ridedott.com/public/v2/tel-aviv" },
+  {
+    city: "tokyo",
+    url: "https://api-public.odpt.org/api/v4/gbfs/docomo-cycle-tokyo",
+  },
+  { city: "washington dc", url: "https://gbfs.capitalbikeshare.com/gbfs/en" },
+];
+// spell-checker:enable

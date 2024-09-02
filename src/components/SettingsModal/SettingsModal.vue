@@ -34,8 +34,8 @@ onMounted(() => show());
 <template>
   <dialog ref="dialog" class="modal">
     <div
-      class="modal-box h-[11rem] w-[20rem] p-2 transition-all"
-      :class="{ 'h-[20.5rem] w-[24rem]': showAbout }"
+      class="modal-box h-[13rem] w-[20rem] overflow-hidden p-2 transition-all"
+      :class="{ 'h-[21rem] w-[24rem]': showAbout }"
     >
       <div class="flex justify-between">
         <label class="btn btn-circle btn-ghost swap swap-rotate btn-sm">

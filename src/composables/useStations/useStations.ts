@@ -1,12 +1,14 @@
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { ref, watch } from "vue";
 import {
   UseStations,
   StationBounds,
   Stations,
+  City,
   StationUpdate,
   StationStatus,
 } from "./useStation.types";
 import {
+  cities,
   getStations,
   getStationStatuses,
   getStationBounds,
@@ -16,6 +18,11 @@ import {
 import { Extent } from "ol/extent";
 
 const isReady = ref(false);
+
+const selectedCity = ref<City>({
+  city: "washington dc",
+  url: "https://gbfs.capitalbikeshare.com/gbfs/en",
+});
 const stations = ref<Stations>({});
 const lastStationUpdate = ref(0);
 const stagedStationUpdates = ref<StationUpdate[]>([]);
@@ -48,9 +55,18 @@ watch(stationBounds, () => {
   );
 });
 
+watch(
+  selectedCity,
+  () => {
+    useStations().resetStations();
+    useStations().startStationPolling();
+  },
+  { deep: true }
+);
+
 export const useStations = (): UseStations => {
   const setupStations = async (): Promise<void> => {
-    const stationData = await getStations();
+    const stationData = await getStations(selectedCity.value.url);
     stations.value = stationData.stations;
     lastStationUpdate.value = stationData.lastStationUpdate;
     stationBounds.value = getStationBounds(stationData.stations);
@@ -58,7 +74,7 @@ export const useStations = (): UseStations => {
   };
 
   const getStationUpdates = async (): Promise<void> => {
-    const stationData = await getStationStatuses();
+    const stationData = await getStationStatuses(selectedCity.value.url);
     if (stationData.last_updated === lastStationUpdate.value) return;
 
     lastStationUpdate.value = stationData.last_updated;
@@ -140,16 +156,11 @@ export const useStations = (): UseStations => {
     clearTimeoutId();
   };
 
-  onMounted(() => {
-    if (pollingInterval.value !== null) return;
-    startStationPolling();
-  });
-
-  onUnmounted(() => resetStations());
-
   return {
     isReady,
     stations,
+    cities,
+    selectedCity,
     stationUpdate,
     stationUpdates,
     stationBounds,
