@@ -38,11 +38,14 @@ onMounted(() => show());
       :class="showAbout ? 'h-[22rem] w-96' : 'h-56 w-80'"
     >
       <div class="flex justify-between">
-        <label class="btn btn-circle btn-ghost swap swap-rotate btn-sm">
-          <input id="showAbout" type="checkbox" @click="showAbout = !showAbout" />
+        <button
+          class="btn btn-circle btn-ghost swap swap-rotate btn-sm"
+          :class="{ 'swap-active': showAbout }"
+          @click="showAbout = !showAbout"
+        >
           <QuestionMarkCircleIcon class="swap-off size-6" />
           <Cog6ToothIcon class="swap-on size-6" />
-        </label>
+        </button>
         <button class="btn btn-circle btn-ghost btn-sm" @click="close">
           <XMarkIcon class="size-6" />
         </button>
