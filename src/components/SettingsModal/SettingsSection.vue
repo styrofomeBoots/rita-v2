@@ -6,8 +6,11 @@ const { soundEnabled, toggleSoundEnabled } = useTone();
 const { selectedCity, selectableCities } = useStations();
 </script>
 <template>
-  <div class="px-5 pb-2 text-center text-sm">
-    an audio visual representation of city bike share programs
+  <div class="px-5 pb-2 text-center">
+    <div class="pb-1 text-sm">
+      an audio visual representation of city bike share programs
+    </div>
+    <div class="text-xs">best viewed on desktop</div>
   </div>
   <div class="form-control px-7">
     <label class="label cursor-pointer px-3">

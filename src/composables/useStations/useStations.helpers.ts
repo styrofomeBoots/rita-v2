@@ -160,7 +160,7 @@ export const cities: City[] = [
     browsers: ["chrome", "safari"],
   },
   {
-    city: "philedelphia",
+    city: "philadelphia",
     url: "https://gbfs.bcycle.com/bcycle_indego",
     browsers: ["chrome"],
   },
