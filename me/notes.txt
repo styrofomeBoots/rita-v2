@@ -1,7 +1,6 @@
 bikeShare apis: https://github.com/MobilityData/gbfs/blob/master/systems.csv
 
 ---------- TODO ----------
-- clean up transition animations
 - use tone.js sampler instead of making a request for the sound every time
 - api proxy to allow for more stations?
 - diversify tones. ideas:
