@@ -10,7 +10,7 @@ const { selectedCity, selectableCities } = useStations();
     <div class="pb-1 text-sm">
       an audio visual representation of city bike share programs
     </div>
-    <div class="text-xs">best viewed on desktop and chrome</div>
+    <div class="text-xs">best viewed in chrome on desktop</div>
   </div>
   <div class="form-control px-7">
     <label class="label cursor-pointer px-3">
