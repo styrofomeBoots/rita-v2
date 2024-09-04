@@ -51,28 +51,16 @@ onMounted(() => show());
         </button>
       </div>
       <div class="text-center text-xl">rita</div>
-      <div class="flex-grow">
-        <Transition
-          enter-active-class="transition-opacity duration-300 delay-500 h-0"
-          leave-active-class="transition-opacity duration-300 h-0"
-          enter-from-class="opacity-0"
-          leave-to-class="opacity-0"
-        >
-          <div v-if="!showAbout">
-            <SettingsSection />
-          </div>
-        </Transition>
-        <Transition
-          enter-active-class="transition-opacity duration-300 delay-500"
-          leave-active-class="transition-opacity duration-300"
-          enter-from-class="opacity-0"
-          leave-to-class="opacity-0"
-        >
-          <div v-if="showAbout" class="h-full">
-            <AboutSection />
-          </div>
-        </Transition>
-      </div>
+      <Transition
+        enter-active-class="transition-opacity duration-300 delay-300"
+        leave-active-class="transition-opacity duration-300"
+        enter-from-class="opacity-0"
+        leave-to-class="opacity-0"
+        mode="out-in"
+      >
+        <SettingsSection v-if="!showAbout" />
+        <AboutSection v-else-if="showAbout" />
+      </Transition>
     </div>
     <form method="dialog" class="modal-backdrop">
       <button @click="close"></button>
