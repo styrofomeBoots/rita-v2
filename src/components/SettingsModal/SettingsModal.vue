@@ -34,8 +34,8 @@ onMounted(() => show());
 <template>
   <dialog ref="dialog" class="modal">
     <div
-      class="h- modal-box overflow-hidden p-2 transition-all"
-      :class="showAbout ? 'h-[22rem] w-96' : 'h-56 w-80'"
+      class="modal-box flex flex-col p-2 transition-all delay-300"
+      :class="showAbout ? 'h-[23rem] w-96' : 'h-56 w-80'"
     >
       <div class="flex justify-between">
         <button
@@ -51,25 +51,16 @@ onMounted(() => show());
         </button>
       </div>
       <div class="text-center text-xl">rita</div>
-      <div
-        :class="
-          !showAbout
-            ? ' py-1 opacity-100 transition-opacity delay-150 duration-500'
-            : 'py-0 opacity-0'
-        "
+      <Transition
+        enter-active-class="transition-opacity duration-300 delay-300"
+        leave-active-class="transition-opacity duration-300"
+        enter-from-class="opacity-0"
+        leave-to-class="opacity-0"
+        mode="out-in"
       >
         <SettingsSection v-if="!showAbout" />
-      </div>
-      <div
-        class=""
-        :class="
-          showAbout
-            ? ' py-1 opacity-100 transition-opacity delay-150 duration-500'
-            : 'h-0 py-0 opacity-0'
-        "
-      >
-        <AboutSection v-if="showAbout" />
-      </div>
+        <AboutSection v-else-if="showAbout" />
+      </Transition>
     </div>
     <form method="dialog" class="modal-backdrop">
       <button @click="close"></button>
