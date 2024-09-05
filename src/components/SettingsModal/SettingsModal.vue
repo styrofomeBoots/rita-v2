@@ -52,11 +52,12 @@ onMounted(() => show());
       </div>
       <div class="text-center text-xl">rita</div>
       <Transition
+        enter-from-class="opacity-0"
         enter-active-class="transition-opacity duration-300 delay-300"
         leave-active-class="transition-opacity duration-300"
-        enter-from-class="opacity-0"
         leave-to-class="opacity-0"
         mode="out-in"
+        appear
       >
         <SettingsSection v-if="!showAbout" />
         <AboutSection v-else-if="showAbout" />
