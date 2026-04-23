@@ -13,12 +13,14 @@ export interface UseStations {
   stations: Ref<Stations>;
   selectedCity: Ref<City>;
   selectableCities: Ref<City[]>;
+  fakeUpdatesEnabled: Ref<boolean>;
   stationUpdate: Ref<StationUpdate | null>;
   stationUpdates: Ref<StationUpdate[]>;
   stationBounds: Ref<StationBounds | null>;
   setupStations: () => Promise<void>;
   getStationUpdates: () => Promise<void>;
   startStationPolling: () => void;
+  toggleFakeUpdatesEnabled: () => void;
   updateStationBounds: (extent: Extent) => void;
   resetStations: () => void;
 }
@@ -61,9 +63,11 @@ export interface Stations {
 }
 
 export interface StationUpdate {
+  id: string;
   name: string;
   coordinate: Coordinate;
   bikesDelta: number;
+  isSynthetic: boolean;
 }
 
 export interface StationBounds {

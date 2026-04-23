@@ -61,9 +61,10 @@ const toggleDrawer = (): void => {
       >
         <StationNotification
           v-for="update in stationUpdates"
-          :key="update.name"
+          :key="update.id"
           :name="update.name"
           :bikes-delta="update.bikesDelta"
+          :is-synthetic="update.isSynthetic"
         />
         <div
           key="emptyState"

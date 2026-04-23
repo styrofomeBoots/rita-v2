@@ -6,7 +6,10 @@ import {
   SoundFontInstruments,
   ToneType,
 } from "./useTone.types";
-let Tone: ToneType; // import * as Tone from "tone";
+let Tone: ToneType;
+let reverb: InstanceType<ToneType["Reverb"]> | null = null;
+let backingSynth: InstanceType<ToneType["Synth"]> | null = null;
+const activePlayers = new Set<InstanceType<ToneType["Player"]>>();
 
 export const SCALES = {
   c: {
@@ -51,15 +54,20 @@ export const buildNote = (
   } = options;
   const noteUrl = `${SF_URL}/${library}/${instrument}/${note + octave}.mp3`;
   const baseNote = new Tone.Player(noteUrl);
+  activePlayers.add(baseNote);
   baseNote.fadeIn = fadeIn;
   baseNote.fadeOut = fadeOut;
-  const reverb = addReverb();
-  baseNote.connect(reverb);
+  baseNote.onstop = () => {
+    activePlayers.delete(baseNote);
+    baseNote.disconnect();
+    baseNote.dispose();
+  };
+  baseNote.connect(getReverb());
   return baseNote;
 };
 
 export const getBackingNote = (): InstanceType<ToneType["Synth"]> => {
-  return new Tone.Synth({
+  backingSynth ??= new Tone.Synth({
     volume: -40,
     envelope: {
       attack: 2,
@@ -71,13 +79,30 @@ export const getBackingNote = (): InstanceType<ToneType["Synth"]> => {
       sustain: 0.5,
     },
   }).toDestination();
+  return backingSynth;
 };
 
-const addReverb = (): InstanceType<ToneType["Reverb"]> => {
-  const reverb = new Tone.Reverb({
+const getReverb = (): InstanceType<ToneType["Reverb"]> => {
+  reverb ??= new Tone.Reverb({
     decay: 20,
     preDelay: 0.1,
     wet: 0.5,
   }).toDestination();
   return reverb;
+};
+
+export const disposeToneNodes = (): void => {
+  for (const player of activePlayers) {
+    activePlayers.delete(player);
+    player.disconnect();
+    player.dispose();
+  }
+
+  backingSynth?.disconnect();
+  backingSynth?.dispose();
+  backingSynth = null;
+
+  reverb?.disconnect();
+  reverb?.dispose();
+  reverb = null;
 };

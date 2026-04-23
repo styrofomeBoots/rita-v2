@@ -4,9 +4,10 @@ import { Ref } from "vue";
 
 export interface UseTone {
   soundEnabled: Ref<boolean>;
-  toggleSoundEnabled: () => void;
+  toggleSoundEnabled: () => Promise<void>;
   playTone: (coordinate: Coordinate, options?: BuildNoteOptions) => Promise<void>;
   setToneSteps: (extent: Extent) => void;
+  disposeTone: () => void;
 }
 
 export type ToneType = typeof import("tone");
