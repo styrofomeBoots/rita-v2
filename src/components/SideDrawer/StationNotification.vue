@@ -4,6 +4,7 @@ import { computed } from "vue";
 const props = defineProps({
   name: { type: String, required: true },
   bikesDelta: { type: Number, required: true },
+  isSynthetic: { type: Boolean, required: true },
 });
 
 const update = computed(() => {
@@ -16,7 +17,10 @@ const update = computed(() => {
 });
 </script>
 <template>
-  <div class="flex-col p-1">
+  <div
+    class="flex-col rounded-md p-1 transition-colors"
+    :class="props.isSynthetic ? 'text-sky-300' : 'text-base-content'"
+  >
     <div class="line-clamp-2 text-sm font-medium">{{ props.name }}</div>
     <div class="text-xs">{{ update }}</div>
   </div>

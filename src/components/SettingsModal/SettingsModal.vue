@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
 import {
-  XMarkIcon,
-  QuestionMarkCircleIcon,
   Cog6ToothIcon,
+  QuestionMarkCircleIcon,
+  XMarkIcon,
 } from "@heroicons/vue/24/outline";
+import { onMounted, ref } from "vue";
 import AboutSection from "./AboutSection.vue";
 import SettingsSection from "./SettingsSection.vue";
 
@@ -33,16 +33,11 @@ onMounted(() => show());
 
 <template>
   <dialog ref="dialog" class="modal">
-    <div
-      class="modal-box flex flex-col p-2 transition-all delay-300"
-      :class="showAbout ? 'h-[23rem] w-96' : 'h-56 w-80'"
-    >
+    <div class="modal-box flex flex-col p-2 transition-all delay-300"
+      :class="showAbout ? 'h-[23.5rem] w-96' : 'h-64 w-80'">
       <div class="flex justify-between">
-        <button
-          class="btn btn-circle btn-ghost swap swap-rotate btn-sm"
-          :class="{ 'swap-active': showAbout }"
-          @click="showAbout = !showAbout"
-        >
+        <button class="btn btn-circle btn-ghost swap swap-rotate btn-sm" :class="{ 'swap-active': showAbout }"
+          @click="showAbout = !showAbout">
           <QuestionMarkCircleIcon class="swap-off size-6" />
           <Cog6ToothIcon class="swap-on size-6" />
         </button>
@@ -51,14 +46,8 @@ onMounted(() => show());
         </button>
       </div>
       <div class="text-center text-xl">rita</div>
-      <Transition
-        enter-from-class="opacity-0"
-        enter-active-class="transition-opacity duration-300 delay-300"
-        leave-active-class="transition-opacity duration-300"
-        leave-to-class="opacity-0"
-        mode="out-in"
-        appear
-      >
+      <Transition enter-from-class="opacity-0" enter-active-class="transition-opacity duration-300 delay-300"
+        leave-active-class="transition-opacity duration-300" leave-to-class="opacity-0" mode="out-in" appear>
         <SettingsSection v-if="!showAbout" />
         <AboutSection v-else-if="showAbout" />
       </Transition>

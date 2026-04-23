@@ -4,6 +4,7 @@ import {
   StationBounds,
   Stations,
   City,
+  Station,
   StationUpdate,
   StationStatus,
 } from "./useStation.types";
@@ -27,12 +28,16 @@ const selectedCity = ref<City>({
 const selectableCities = ref<City[]>([]);
 const stations = ref<Stations>({});
 const lastStationUpdate = ref(0);
+const fakeUpdatesEnabled = ref(false);
 const stagedStationUpdates = ref<StationUpdate[]>([]);
 const stationUpdate = ref<StationUpdate | null>(null);
 const stationUpdates = ref<StationUpdate[]>([]);
 const stationBounds = ref<StationBounds | null>(null);
 const pollingInterval = ref<number | null>(null);
 const timeoutId = ref<number | null>(null);
+const fakeUpdateTimeoutId = ref<number | null>(null);
+const MAX_STAGED_UPDATES = 250;
+const MAX_VISIBLE_UPDATES = 30;
 
 const clearPollingInterval = (): void => {
   if (pollingInterval.value === null) return;
@@ -44,6 +49,12 @@ const clearTimeoutId = (): void => {
   if (timeoutId.value === null) return;
   clearTimeout(timeoutId.value);
   timeoutId.value = null;
+};
+
+const clearFakeUpdateTimeoutId = (): void => {
+  if (fakeUpdateTimeoutId.value === null) return;
+  clearTimeout(fakeUpdateTimeoutId.value);
+  fakeUpdateTimeoutId.value = null;
 };
 
 watch(stationBounds, () => {
@@ -67,6 +78,72 @@ watch(
 );
 
 export const useStations = (): UseStations => {
+  const queueStationUpdate = (update: StationUpdate): void => {
+    stagedStationUpdates.value.push(update);
+    if (stagedStationUpdates.value.length > MAX_STAGED_UPDATES) {
+      stagedStationUpdates.value.splice(
+        0,
+        stagedStationUpdates.value.length - MAX_STAGED_UPDATES
+      );
+    }
+
+    if (timeoutId.value === null) {
+      selectStagedUpdate();
+    }
+  };
+
+  const getVisibleStations = (): Station[] => {
+    return Object.values(stations.value).filter(station =>
+      isWithinStationBounds(station.lon, station.lat, stationBounds.value)
+    );
+  };
+
+  const createSyntheticStationUpdate = (): void => {
+    const candidates = getVisibleStations()
+      .map(station => ({
+        station,
+        maxIncrease: Math.min(2, station.capacity - station.num_bikes_available),
+        maxDecrease: Math.min(2, station.num_bikes_available),
+      }))
+      .filter(candidate => candidate.maxIncrease > 0 || candidate.maxDecrease > 0);
+
+    if (candidates.length === 0) return;
+
+    const candidate =
+      candidates[Math.floor(Math.random() * candidates.length)];
+    const possibleDeltas = [
+      ...Array.from({ length: candidate.maxDecrease }, (_, index) => -(index + 1)),
+      ...Array.from({ length: candidate.maxIncrease }, (_, index) => index + 1),
+    ];
+    const bikesDelta =
+      possibleDeltas[Math.floor(Math.random() * possibleDeltas.length)];
+
+    candidate.station.num_bikes_available += bikesDelta;
+    candidate.station.num_docks_available = Math.max(
+      0,
+      candidate.station.capacity - candidate.station.num_bikes_available
+    );
+    candidate.station.last_reported = Math.floor(Date.now() / 1000);
+
+    queueStationUpdate({
+      id: `synthetic-${candidate.station.station_id}-${Date.now()}`,
+      name: candidate.station.name,
+      coordinate: [candidate.station.lon, candidate.station.lat],
+      bikesDelta,
+      isSynthetic: true,
+    });
+  };
+
+  const scheduleFakeStationUpdate = (): void => {
+    if (!fakeUpdatesEnabled.value || fakeUpdateTimeoutId.value !== null) return;
+
+    fakeUpdateTimeoutId.value = setTimeout(() => {
+      fakeUpdateTimeoutId.value = null;
+      createSyntheticStationUpdate();
+      scheduleFakeStationUpdate();
+    }, getRandomInterval(2500, 6000)) as unknown as number;
+  };
+
   const setupStations = async (): Promise<void> => {
     selectableCities.value = getSelectableCities();
     const stationData = await getStations(selectedCity.value.url);
@@ -74,6 +151,7 @@ export const useStations = (): UseStations => {
     lastStationUpdate.value = stationData.lastStationUpdate;
     stationBounds.value = getStationBounds(stationData.stations);
     isReady.value = true;
+    scheduleFakeStationUpdate();
   };
 
   const getStationUpdates = async (): Promise<void> => {
@@ -91,53 +169,71 @@ export const useStations = (): UseStations => {
 
       if (status.num_bikes_available === station.num_bikes_available) continue;
 
-      stations.value[status.station_id] = { ...station, ...status };
-      stagedStationUpdates.value.push({
+      const bikesDelta = status.num_bikes_available - station.num_bikes_available;
+      Object.assign(station, status);
+      queueStationUpdate({
+        id: `${status.station_id}-${stationData.last_updated}`,
         name: station.name,
         coordinate: [station.lon, station.lat],
-        bikesDelta: status.num_bikes_available - station.num_bikes_available,
+        bikesDelta,
+        isSynthetic: false,
       });
-    }
-
-    if (stagedStationUpdates.value.length > 0 && timeoutId.value === null) {
-      selectStagedUpdate();
     }
   };
 
   const selectStagedUpdate = (): void => {
-    if (stagedStationUpdates.value.length === 0) {
+    let update: StationUpdate | undefined;
+    while (stagedStationUpdates.value.length > 0) {
+      const candidate = stagedStationUpdates.value.splice(
+        Math.floor(Math.random() * stagedStationUpdates.value.length),
+        1
+      )[0];
+      if (
+        isWithinStationBounds(
+          candidate.coordinate[0],
+          candidate.coordinate[1],
+          stationBounds.value
+        )
+      ) {
+        update = candidate;
+        break;
+      }
+    }
+
+    if (!update) {
       clearTimeoutId();
       return;
     }
-    const update = stagedStationUpdates.value.splice(
-      Math.floor(Math.random() * stagedStationUpdates.value.length),
-      1
-    )[0];
-    if (
-      !isWithinStationBounds(
-        update.coordinate[0],
-        update.coordinate[1],
-        stationBounds.value
-      )
-    )
-      return;
 
     stationUpdate.value = update;
     if (stationUpdate.value) stationUpdates.value.unshift(stationUpdate.value);
-    if (stationUpdates.value.length > 2000) stationUpdates.value.length = 30;
+    if (stationUpdates.value.length > MAX_VISIBLE_UPDATES) {
+      stationUpdates.value.length = MAX_VISIBLE_UPDATES;
+    }
 
     const randomInterval = getRandomInterval(2000, 7500);
     timeoutId.value = setTimeout(() => {
+      timeoutId.value = null;
       selectStagedUpdate();
     }, randomInterval) as unknown as number;
   };
 
   const startStationPolling = (): void => {
-    setupStations();
+    clearPollingInterval();
+    void setupStations();
     pollingInterval.value = setInterval(
-      getStationUpdates,
+      () => void getStationUpdates(),
       5000
     ) as unknown as number;
+  };
+
+  const toggleFakeUpdatesEnabled = (): void => {
+    fakeUpdatesEnabled.value = !fakeUpdatesEnabled.value;
+    if (!fakeUpdatesEnabled.value) {
+      clearFakeUpdateTimeoutId();
+      return;
+    }
+    scheduleFakeStationUpdate();
   };
 
   const updateStationBounds = (extent: Extent): void => {
@@ -157,6 +253,7 @@ export const useStations = (): UseStations => {
     stationBounds.value = { min: [0, 0], max: [0, 0] };
     clearPollingInterval();
     clearTimeoutId();
+    clearFakeUpdateTimeoutId();
   };
 
   return {
@@ -164,12 +261,14 @@ export const useStations = (): UseStations => {
     stations,
     selectableCities,
     selectedCity,
+    fakeUpdatesEnabled,
     stationUpdate,
     stationUpdates,
     stationBounds,
     setupStations,
     getStationUpdates,
     startStationPolling,
+    toggleFakeUpdatesEnabled,
     updateStationBounds,
     resetStations,
   };
