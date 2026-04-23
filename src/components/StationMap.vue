@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
@@ -14,6 +14,7 @@ import { Circle as CircleStyle, Style, Stroke } from "ol/style";
 import { easeOut } from "ol/easing.js";
 import { getVectorContext } from "ol/render";
 import { unByKey } from "ol/Observable";
+import { EventsKey } from "ol/events";
 import { boundingExtent, Extent } from "ol/extent";
 import { Coordinate } from "ol/coordinate";
 import { useStations } from "@/composables/useStations/useStations";
@@ -24,7 +25,7 @@ import { useTone } from "@/composables/useTone/useTone";
 
 const { stationBounds, stations, stationUpdate, updateStationBounds } =
   useStations();
-const { playTone, setToneSteps } = useTone();
+const { playTone, setToneSteps, disposeTone } = useTone();
 
 const mapUrl: string =
   "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png";
@@ -32,6 +33,8 @@ const mapUrl: string =
 const mapRef = ref<HTMLDivElement>();
 const map = ref<Map>();
 const currentExtent = ref<Extent | null>(null);
+const mapListenerKeys: EventsKey[] = [];
+const animationListenerKeys: EventsKey[] = [];
 
 const tileLayer = new TileLayer({
   source: new XYZ({
@@ -39,6 +42,17 @@ const tileLayer = new TileLayer({
   }),
 });
 const vectorSource = new VectorSource();
+const vectorLayer = new VectorLayer({
+  source: vectorSource,
+});
+const markerStyle = new Style({
+  image: new CircleStyle({
+    radius: 2,
+    fill: new Fill({
+      color: "#8F959E",
+    }),
+  }),
+});
 
 const addStationMarkers = (): void => {
   for (const s in stations.value) {
@@ -46,23 +60,15 @@ const addStationMarkers = (): void => {
       geometry: new Point(stations.value[s].coordinate),
     });
     marker.set("name", stations.value[s].name);
-    marker.setStyle(
-      new Style({
-        image: new CircleStyle({
-          radius: 2,
-          fill: new Fill({
-            color: "#8F959E",
-          }),
-        }),
-      })
-    );
+    marker.setStyle(markerStyle);
     vectorSource.addFeature(marker);
   }
 };
 
-const showStationUpdate = (coordinate: Coordinate): void => {
+const showStationUpdate = (coordinate: Coordinate, isSynthetic: boolean): void => {
   const geom = new Point(coordinate);
   const feature = new Feature(geom);
+  feature.set("isSynthetic", isSynthetic);
   vectorSource.addFeature(feature);
   vectorSource.removeFeature(feature);
 };
@@ -71,12 +77,17 @@ const animateUpdate = (feature: Feature): void => {
   const duration = 3000;
   const start = Date.now();
   const flashGeom = feature.getGeometry()?.clone();
+  const isSynthetic = feature.get("isSynthetic") === true;
+  if (!flashGeom) return;
+
   const listenerKey = tileLayer.on("postrender", (event: RenderEvent): void => {
-    if (!flashGeom) return;
-    if (!event.frameState?.time) return;
+    if (!event.frameState?.time) {
+      cleanupAnimationListener(listenerKey as EventsKey);
+      return;
+    }
     const elapsed = event.frameState.time - start;
     if (elapsed >= duration) {
-      unByKey(listenerKey);
+      cleanupAnimationListener(listenerKey as EventsKey);
       return;
     }
     const vectorContext = getVectorContext(event);
@@ -88,7 +99,9 @@ const animateUpdate = (feature: Feature): void => {
       image: new CircleStyle({
         radius: radius,
         stroke: new Stroke({
-          color: "rgba(143, 149, 158, " + opacity + ")",
+          color: isSynthetic
+            ? "rgba(125, 211, 252, " + opacity + ")"
+            : "rgba(143, 149, 158, " + opacity + ")",
           width: 0.25 + opacity,
         }),
       }),
@@ -96,7 +109,16 @@ const animateUpdate = (feature: Feature): void => {
     vectorContext.setStyle(style);
     vectorContext.drawGeometry(flashGeom);
     map.value?.render();
-  });
+  }) as EventsKey;
+  animationListenerKeys.push(listenerKey);
+};
+
+const cleanupAnimationListener = (listenerKey: EventsKey): void => {
+  unByKey(listenerKey);
+  const listenerIndex = animationListenerKeys.indexOf(listenerKey);
+  if (listenerIndex >= 0) {
+    animationListenerKeys.splice(listenerIndex, 1);
+  }
 };
 
 // fits the view to coordinates
@@ -124,7 +146,10 @@ watch(
   async () => {
     if (!stationUpdate.value) return;
     await playTone(stationUpdate.value.coordinate);
-    showStationUpdate(stationUpdate.value.coordinate);
+    showStationUpdate(
+      stationUpdate.value.coordinate,
+      stationUpdate.value.isSynthetic
+    );
   },
   { deep: true }
 );
@@ -157,21 +182,38 @@ onMounted(async () => {
   }
 
   // allows any new features (updates) added to be animated
-  const vectorLayer = new VectorLayer({
-    source: vectorSource,
-  });
-  vectorSource.on("addfeature", e => {
-    if (e.feature) animateUpdate(e.feature);
-  });
+  mapListenerKeys.push(
+    vectorSource.on("addfeature", e => {
+      if (e.feature) animateUpdate(e.feature);
+    }) as EventsKey
+  );
 
   map.value.addLayer(vectorLayer);
 
   // gets extent after zoom
-  map.value.on("moveend", () => {
-    currentExtent.value = map.value
-      ?.getView()
-      .calculateExtent(map.value.getSize()) as Extent;
-  });
+  mapListenerKeys.push(
+    map.value.on("moveend", () => {
+      currentExtent.value = map.value
+        ?.getView()
+        .calculateExtent(map.value.getSize()) as Extent;
+    }) as EventsKey
+  );
+});
+
+onBeforeUnmount(() => {
+  for (const listenerKey of animationListenerKeys.splice(0)) {
+    unByKey(listenerKey);
+  }
+  for (const listenerKey of mapListenerKeys.splice(0)) {
+    unByKey(listenerKey);
+  }
+
+  disposeTone();
+  vectorSource.clear();
+  map.value?.removeLayer(vectorLayer);
+  map.value?.setTarget(undefined);
+  map.value = undefined;
+  currentExtent.value = null;
 });
 </script>
 <template>

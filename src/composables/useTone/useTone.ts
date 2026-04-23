@@ -1,16 +1,17 @@
+import { Coordinate } from "ol/coordinate";
+import { Extent } from "ol/extent";
 import { ref } from "vue";
 import {
-  importToneJs,
-  getToneIndex,
   buildNote,
+  disposeToneNodes,
   getBackingNote,
-  SCALES,
+  getToneIndex,
+  importToneJs,
   OCTAVES,
+  SCALES,
 } from "./useTone.helpers";
-import { UseTone, BuildNoteOptions, ToneType, Octave, Note } from "./useTone.types";
-import { Extent } from "ol/extent";
-import { Coordinate } from "ol/coordinate";
-let Tone: ToneType; // import * as Tone from "tone";
+import { BuildNoteOptions, Note, Octave, ToneType, UseTone } from "./useTone.types";
+let Tone: ToneType;
 
 // coordinates are [lon, lat]
 // extent is [lonMin (west), latMin (south), lonMax (east), latMax (west)]
@@ -25,8 +26,12 @@ const octaveMin = ref(0);
 export const useTone = (): UseTone => {
   const toggleSoundEnabled = async (): Promise<void> => {
     soundEnabled.value = !soundEnabled.value;
-    if (soundEnabled.value && !Tone) {
-      await importToneJs();
+    if (!soundEnabled.value) {
+      disposeToneNodes();
+      return;
+    }
+
+    if (!Tone) {
       Tone = await importToneJs();
     }
   };
@@ -36,6 +41,9 @@ export const useTone = (): UseTone => {
     options = {} as BuildNoteOptions
   ): Promise<void> => {
     if (!soundEnabled.value) return;
+    if (!Tone) {
+      Tone = await importToneJs();
+    }
     const noteIndex = getToneIndex(
       coordinate[0],
       scaleMin.value,
@@ -66,5 +74,9 @@ export const useTone = (): UseTone => {
     octaveStep.value = (latMax - octaveMin.value) / OCTAVES.length;
   };
 
-  return { soundEnabled, toggleSoundEnabled, playTone, setToneSteps };
+  const disposeTone = (): void => {
+    disposeToneNodes();
+  };
+
+  return { soundEnabled, toggleSoundEnabled, playTone, setToneSteps, disposeTone };
 };

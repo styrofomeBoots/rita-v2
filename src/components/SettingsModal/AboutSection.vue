@@ -10,13 +10,8 @@ const toggleRita = (): void => {
 
 <template>
   <div class="flex flex-grow flex-col gap-1">
-    <Transition
-      enter-from-class="opacity-0"
-      enter-active-class="transition-opacity duration-300 delay-300"
-      leave-active-class="transition-opacity duration-300"
-      leave-to-class="opacity-0"
-      mode="out-in"
-    >
+    <Transition enter-from-class="opacity-0" enter-active-class="transition-opacity duration-300 delay-300"
+      leave-active-class="transition-opacity duration-300" leave-to-class="opacity-0" mode="out-in">
       <div v-if="!showRita" class="text-balance px-2 text-center">
         <p>
           Bike rental stations are mapped by their latitude and longitude, with a
@@ -33,24 +28,16 @@ const toggleRita = (): void => {
         </a>
       </div>
       <div v-else-if="showRita" class="text-center">
-        <img
-          src="../../assets/mean-rita.jpeg"
-          alt="mean-rita"
-          class="mx-auto h-[15rem] w-fit rounded-md object-scale-down"
-        />
+        <img src="../../assets/mean-rita.jpeg" alt="mean-rita"
+          class="mx-auto h-[15rem] w-fit rounded-md object-scale-down" />
         <a class="link text-sm" @click="toggleRita">
           {{ showRita ? "cute" : "show me the rita" }}
         </a>
       </div>
     </Transition>
     <div class="flex flex-col items-center">
-      <a
-        href="https://github.com/styrofomeBoots/rita-v2"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="link text-sm"
-        >show me the code</a
-      >
+      <a href="https://github.com/styrofomeBoots/rita-v2" target="_blank" rel="noopener noreferrer"
+        class="link text-sm">show me the code</a>
     </div>
   </div>
 </template>

@@ -3,7 +3,12 @@ import { useTone } from "@/composables/useTone/useTone";
 import { useStations } from "@/composables/useStations/useStations";
 
 const { soundEnabled, toggleSoundEnabled } = useTone();
-const { selectedCity, selectableCities } = useStations();
+const {
+  selectedCity,
+  selectableCities,
+  fakeUpdatesEnabled,
+  toggleFakeUpdatesEnabled,
+} = useStations();
 </script>
 <template>
   <div>
@@ -22,6 +27,16 @@ const { selectedCity, selectableCities } = useStations();
           class="toggle toggle-sm"
           :checked="soundEnabled"
           @click="toggleSoundEnabled"
+        />
+      </label>
+      <label class="label cursor-pointer px-3">
+        <span class="label-text">fake updates</span>
+        <input
+          id="fakeUpdatesEnabled"
+          type="checkbox"
+          class="toggle toggle-sm"
+          :checked="fakeUpdatesEnabled"
+          @click="toggleFakeUpdatesEnabled"
         />
       </label>
       <select
