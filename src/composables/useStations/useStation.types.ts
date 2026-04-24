@@ -1,6 +1,6 @@
-import { Ref } from "vue";
 import { Coordinate } from "ol/coordinate";
 import { Extent } from "ol/extent";
+import { Ref } from "vue";
 
 export interface City {
   city: string;
@@ -13,14 +13,14 @@ export interface UseStations {
   stations: Ref<Stations>;
   selectedCity: Ref<City>;
   selectableCities: Ref<City[]>;
-  fakeUpdatesEnabled: Ref<boolean>;
+  ambientActivityEnabled: Ref<boolean>;
   stationUpdate: Ref<StationUpdate | null>;
   stationUpdates: Ref<StationUpdate[]>;
   stationBounds: Ref<StationBounds | null>;
   setupStations: () => Promise<void>;
   getStationUpdates: () => Promise<void>;
   startStationPolling: () => void;
-  toggleFakeUpdatesEnabled: () => void;
+  toggleAmbientActivityEnabled: () => void;
   updateStationBounds: (extent: Extent) => void;
   resetStations: () => void;
 }

@@ -1,22 +1,22 @@
+import { Extent } from "ol/extent";
 import { ref, watch } from "vue";
 import {
-  UseStations,
-  StationBounds,
-  Stations,
   City,
   Station,
-  StationUpdate,
+  StationBounds,
+  Stations,
   StationStatus,
+  StationUpdate,
+  UseStations,
 } from "./useStation.types";
 import {
+  getRandomInterval,
+  getSelectableCities,
+  getStationBounds,
   getStations,
   getStationStatuses,
-  getStationBounds,
-  getRandomInterval,
   isWithinStationBounds,
-  getSelectableCities,
 } from "./useStations.helpers";
-import { Extent } from "ol/extent";
 
 const isReady = ref(false);
 
@@ -28,14 +28,14 @@ const selectedCity = ref<City>({
 const selectableCities = ref<City[]>([]);
 const stations = ref<Stations>({});
 const lastStationUpdate = ref(0);
-const fakeUpdatesEnabled = ref(false);
+const ambientActivityEnabled = ref(false);
 const stagedStationUpdates = ref<StationUpdate[]>([]);
 const stationUpdate = ref<StationUpdate | null>(null);
 const stationUpdates = ref<StationUpdate[]>([]);
 const stationBounds = ref<StationBounds | null>(null);
 const pollingInterval = ref<number | null>(null);
 const timeoutId = ref<number | null>(null);
-const fakeUpdateTimeoutId = ref<number | null>(null);
+const ambientActivityTimeoutId = ref<number | null>(null);
 const MAX_STAGED_UPDATES = 250;
 const MAX_VISIBLE_UPDATES = 30;
 
@@ -51,10 +51,10 @@ const clearTimeoutId = (): void => {
   timeoutId.value = null;
 };
 
-const clearFakeUpdateTimeoutId = (): void => {
-  if (fakeUpdateTimeoutId.value === null) return;
-  clearTimeout(fakeUpdateTimeoutId.value);
-  fakeUpdateTimeoutId.value = null;
+const clearAmbientActivityTimeoutId = (): void => {
+  if (ambientActivityTimeoutId.value === null) return;
+  clearTimeout(ambientActivityTimeoutId.value);
+  ambientActivityTimeoutId.value = null;
 };
 
 watch(stationBounds, () => {
@@ -109,8 +109,7 @@ export const useStations = (): UseStations => {
 
     if (candidates.length === 0) return;
 
-    const candidate =
-      candidates[Math.floor(Math.random() * candidates.length)];
+    const candidate = candidates[Math.floor(Math.random() * candidates.length)];
     const possibleDeltas = [
       ...Array.from({ length: candidate.maxDecrease }, (_, index) => -(index + 1)),
       ...Array.from({ length: candidate.maxIncrease }, (_, index) => index + 1),
@@ -134,14 +133,18 @@ export const useStations = (): UseStations => {
     });
   };
 
-  const scheduleFakeStationUpdate = (): void => {
-    if (!fakeUpdatesEnabled.value || fakeUpdateTimeoutId.value !== null) return;
+  const scheduleAmbientActivityUpdate = (): void => {
+    if (!ambientActivityEnabled.value || ambientActivityTimeoutId.value !== null)
+      return;
 
-    fakeUpdateTimeoutId.value = setTimeout(() => {
-      fakeUpdateTimeoutId.value = null;
-      createSyntheticStationUpdate();
-      scheduleFakeStationUpdate();
-    }, getRandomInterval(2500, 6000)) as unknown as number;
+    ambientActivityTimeoutId.value = setTimeout(
+      () => {
+        ambientActivityTimeoutId.value = null;
+        createSyntheticStationUpdate();
+        scheduleAmbientActivityUpdate();
+      },
+      getRandomInterval(2500, 6000)
+    ) as unknown as number;
   };
 
   const setupStations = async (): Promise<void> => {
@@ -151,7 +154,7 @@ export const useStations = (): UseStations => {
     lastStationUpdate.value = stationData.lastStationUpdate;
     stationBounds.value = getStationBounds(stationData.stations);
     isReady.value = true;
-    scheduleFakeStationUpdate();
+    scheduleAmbientActivityUpdate();
   };
 
   const getStationUpdates = async (): Promise<void> => {
@@ -227,13 +230,13 @@ export const useStations = (): UseStations => {
     ) as unknown as number;
   };
 
-  const toggleFakeUpdatesEnabled = (): void => {
-    fakeUpdatesEnabled.value = !fakeUpdatesEnabled.value;
-    if (!fakeUpdatesEnabled.value) {
-      clearFakeUpdateTimeoutId();
+  const toggleAmbientActivityEnabled = (): void => {
+    ambientActivityEnabled.value = !ambientActivityEnabled.value;
+    if (!ambientActivityEnabled.value) {
+      clearAmbientActivityTimeoutId();
       return;
     }
-    scheduleFakeStationUpdate();
+    scheduleAmbientActivityUpdate();
   };
 
   const updateStationBounds = (extent: Extent): void => {
@@ -253,7 +256,7 @@ export const useStations = (): UseStations => {
     stationBounds.value = { min: [0, 0], max: [0, 0] };
     clearPollingInterval();
     clearTimeoutId();
-    clearFakeUpdateTimeoutId();
+    clearAmbientActivityTimeoutId();
   };
 
   return {
@@ -261,14 +264,14 @@ export const useStations = (): UseStations => {
     stations,
     selectableCities,
     selectedCity,
-    fakeUpdatesEnabled,
+    ambientActivityEnabled,
     stationUpdate,
     stationUpdates,
     stationBounds,
     setupStations,
     getStationUpdates,
     startStationPolling,
-    toggleFakeUpdatesEnabled,
+    toggleAmbientActivityEnabled,
     updateStationBounds,
     resetStations,
   };

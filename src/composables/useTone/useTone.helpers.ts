@@ -1,9 +1,9 @@
 import {
+  BuildNoteOptions,
   Note,
   Octave,
-  BuildNoteOptions,
-  SoundFontLibraries,
   SoundFontInstruments,
+  SoundFontLibraries,
   ToneType,
 } from "./useTone.types";
 let Tone: ToneType;

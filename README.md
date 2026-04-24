@@ -52,9 +52,9 @@ Use `npm run dev:h` if you want Vite exposed on your local network.
 
 ## Changelog
 
-### Unreleased - 2026-04-23
+### 2026-04-23
 
-- Added a `fake updates` setting to generate synthetic station activity for demos and testing when live feeds are quiet.
+- Added an `ambient activity` setting to generate synthetic station activity for demos and testing when live feeds are quiet.
 - Marked synthetic updates in both the side drawer and map animation so generated activity is visually distinct from real feed changes.
 - Improved station update handling by adding stable update IDs, capping queued and visible updates, and filtering updates to the current map bounds.
 - Reduced audio and map lifecycle leaks by reusing Tone nodes, disposing active players when sound is disabled, and cleaning up OpenLayers listeners on unmount.
