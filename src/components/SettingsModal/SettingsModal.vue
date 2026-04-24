@@ -34,7 +34,7 @@ onMounted(() => show());
 <template>
   <dialog ref="dialog" class="modal">
     <div class="modal-box flex flex-col p-2 transition-all delay-300"
-      :class="showAbout ? 'h-[23.5rem] w-96' : 'h-64 w-80'">
+      :class="showAbout ? 'h-[24.5rem] w-96' : 'h-[18.5rem] w-80'">
       <div class="flex justify-between">
         <button class="btn btn-circle btn-ghost swap swap-rotate btn-sm" :class="{ 'swap-active': showAbout }"
           @click="showAbout = !showAbout">

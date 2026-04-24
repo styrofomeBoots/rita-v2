@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { useTone } from "@/composables/useTone/useTone";
 import { useStations } from "@/composables/useStations/useStations";
+import { useTone } from "@/composables/useTone/useTone";
+import { QuestionMarkCircleIcon } from "@heroicons/vue/24/outline";
 
-const { soundEnabled, toggleSoundEnabled } = useTone();
+const { soundEnabled, selectedScaleId, selectableScales, toggleSoundEnabled } =
+  useTone();
 const {
   selectedCity,
   selectableCities,
-  fakeUpdatesEnabled,
-  toggleFakeUpdatesEnabled,
+  ambientActivityEnabled,
+  toggleAmbientActivityEnabled,
 } = useStations();
 </script>
 <template>
@@ -21,31 +23,26 @@ const {
     <div class="form-control px-7">
       <label class="label cursor-pointer px-3">
         <span class="label-text">enable sound</span>
-        <input
-          id="soundEnabled"
-          type="checkbox"
-          class="toggle toggle-sm"
-          :checked="soundEnabled"
-          @click="toggleSoundEnabled"
-        />
+        <input id="soundEnabled" type="checkbox" class="toggle toggle-sm" :checked="soundEnabled"
+          @click="toggleSoundEnabled" />
       </label>
       <label class="label cursor-pointer px-3">
-        <span class="label-text">fake updates</span>
-        <input
-          id="fakeUpdatesEnabled"
-          type="checkbox"
-          class="toggle toggle-sm"
-          :checked="fakeUpdatesEnabled"
-          @click="toggleFakeUpdatesEnabled"
-        />
+        <span class="label-text inline-flex items-center gap-1">ambient activity
+          <div class="tooltip" data-tip="fills quiet moments with generated updates">
+            <QuestionMarkCircleIcon class="size-5" />
+          </div>
+        </span>
+        <input id="ambientActivityEnabled" type="checkbox" class="toggle toggle-sm" :checked="ambientActivityEnabled"
+          @click="toggleAmbientActivityEnabled" />
       </label>
-      <select
-        id="selectedCity"
-        v-model="selectedCity"
-        class="select select-sm w-full"
-      >
+      <select id="selectedCity" v-model="selectedCity" class="select select-sm mt-1 w-full">
         <option v-for="city in selectableCities" :key="city.city" :value="city">
           {{ city.city }}
+        </option>
+      </select>
+      <select id="selectedScale" v-model="selectedScaleId" class="select select-sm mt-1 w-full">
+        <option v-for="scale in selectableScales" :key="scale.id" :value="scale.id">
+          {{ scale.label }}
         </option>
       </select>
     </div>
