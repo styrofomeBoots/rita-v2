@@ -1,49 +1,92 @@
-import { Coordinate } from "ol/coordinate";
 import { Extent } from "ol/extent";
-import { ref } from "vue";
+import { computed, ref, watch } from "vue";
 import {
-  buildNote,
+  buildTonePattern,
   disposeToneNodes,
-  getBackingNote,
+  ensureReverbReady,
+  getAmbientSynth,
+  getScaleById,
   getToneIndex,
   importToneJs,
   OCTAVES,
-  SCALES,
+  SCALE_OPTIONS,
+  setAmbientFilterFrequency,
 } from "./useTone.helpers";
-import { BuildNoteOptions, Note, Octave, ToneType, UseTone } from "./useTone.types";
+import { ScaleId, ToneEvent, ToneType, UseTone } from "./useTone.types";
 let Tone: ToneType;
 
 // coordinates are [lon, lat]
 // extent is [lonMin (west), latMin (south), lonMax (east), latMax (west)]
 
 const soundEnabled = ref(false);
-const scale = ref(SCALES.c.pentatonic);
+const selectedScaleId = ref<ScaleId>("cOpen");
+const selectableScales = ref(SCALE_OPTIONS);
+const scale = computed(() => getScaleById(selectedScaleId.value).notes);
 const scaleStep = ref(0);
 const octaveStep = ref(0);
 const scaleMin = ref(0);
 const octaveMin = ref(0);
+const lastExtent = ref<Extent | null>(null);
+
+const updateToneSteps = (extent: Extent): void => {
+  scaleMin.value = extent[0];
+  octaveMin.value = extent[1];
+  const lonMax = extent[2];
+  const latMax = extent[3];
+  scaleStep.value = (lonMax - scaleMin.value) / scale.value.length;
+  octaveStep.value = (latMax - octaveMin.value) / OCTAVES.length;
+};
+
+watch(selectedScaleId, () => {
+  if (!lastExtent.value) return;
+  updateToneSteps(lastExtent.value);
+});
 
 export const useTone = (): UseTone => {
+  const ensureToneModule = async (): Promise<ToneType> => {
+    if (!Tone) {
+      Tone = await importToneJs();
+    }
+
+    return Tone;
+  };
+
+  const ensureToneReady = async (): Promise<boolean> => {
+    const tone = await ensureToneModule();
+    const context = tone.getContext();
+
+    try {
+      if (context.state !== "running") {
+        await tone.start();
+      }
+      await ensureReverbReady();
+      return true;
+    } catch (error) {
+      console.error("Unable to start audio playback.", error);
+      return false;
+    }
+  };
+
   const toggleSoundEnabled = async (): Promise<void> => {
-    soundEnabled.value = !soundEnabled.value;
-    if (!soundEnabled.value) {
+    const nextEnabled = !soundEnabled.value;
+    if (!nextEnabled) {
+      soundEnabled.value = false;
       disposeToneNodes();
       return;
     }
 
-    if (!Tone) {
-      Tone = await importToneJs();
-    }
+    soundEnabled.value = await ensureToneReady();
   };
 
-  const playTone = async (
-    coordinate: Coordinate,
-    options = {} as BuildNoteOptions
-  ): Promise<void> => {
+  const playTone = async ({
+    coordinate,
+    bikesDelta,
+    isSynthetic,
+  }: ToneEvent): Promise<void> => {
     if (!soundEnabled.value) return;
-    if (!Tone) {
-      Tone = await importToneJs();
-    }
+    const tone = await ensureToneModule();
+    if (!(await ensureToneReady())) return;
+
     const noteIndex = getToneIndex(
       coordinate[0],
       scaleMin.value,
@@ -56,27 +99,42 @@ export const useTone = (): UseTone => {
       octaveStep.value,
       OCTAVES.length
     );
-    const note = scale.value[noteIndex] as Note;
-    const octave = OCTAVES[octaveIndex] as Octave;
-    const baseNote = buildNote(note, octave, options);
-    const backingNote = getBackingNote();
-    await Tone.loaded();
-    backingNote.triggerAttackRelease(`${note}${octave}`, 4);
-    baseNote.start();
+    const pattern = buildTonePattern(
+      scale.value,
+      OCTAVES,
+      noteIndex,
+      octaveIndex,
+      bikesDelta,
+      isSynthetic
+    );
+    const ambientSynth = getAmbientSynth();
+    const startTime = tone.now();
+    setAmbientFilterFrequency(pattern.filterFrequency);
+    ambientSynth.releaseAll(startTime);
+    ambientSynth.triggerAttackRelease(
+      pattern.notes.map(({ note, octave }) => `${note}${octave}`),
+      pattern.duration,
+      startTime,
+      pattern.velocity
+    );
   };
 
   const setToneSteps = (extent: Extent): void => {
-    scaleMin.value = extent[0];
-    octaveMin.value = extent[1];
-    const lonMax = extent[2];
-    const latMax = extent[3];
-    scaleStep.value = (lonMax - scaleMin.value) / scale.value.length;
-    octaveStep.value = (latMax - octaveMin.value) / OCTAVES.length;
+    lastExtent.value = extent;
+    updateToneSteps(extent);
   };
 
   const disposeTone = (): void => {
     disposeToneNodes();
   };
 
-  return { soundEnabled, toggleSoundEnabled, playTone, setToneSteps, disposeTone };
+  return {
+    soundEnabled,
+    selectedScaleId,
+    selectableScales,
+    toggleSoundEnabled,
+    playTone,
+    setToneSteps,
+    disposeTone,
+  };
 };

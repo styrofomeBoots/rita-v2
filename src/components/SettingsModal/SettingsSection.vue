@@ -3,7 +3,8 @@ import { useStations } from "@/composables/useStations/useStations";
 import { useTone } from "@/composables/useTone/useTone";
 import { QuestionMarkCircleIcon } from "@heroicons/vue/24/outline";
 
-const { soundEnabled, toggleSoundEnabled } = useTone();
+const { soundEnabled, selectedScaleId, selectableScales, toggleSoundEnabled } =
+  useTone();
 const {
   selectedCity,
   selectableCities,
@@ -34,9 +35,14 @@ const {
         <input id="ambientActivityEnabled" type="checkbox" class="toggle toggle-sm" :checked="ambientActivityEnabled"
           @click="toggleAmbientActivityEnabled" />
       </label>
-      <select id="selectedCity" v-model="selectedCity" class="select select-sm w-full">
+      <select id="selectedCity" v-model="selectedCity" class="select select-sm mt-1 w-full">
         <option v-for="city in selectableCities" :key="city.city" :value="city">
           {{ city.city }}
+        </option>
+      </select>
+      <select id="selectedScale" v-model="selectedScaleId" class="select select-sm mt-1 w-full">
+        <option v-for="scale in selectableScales" :key="scale.id" :value="scale.id">
+          {{ scale.label }}
         </option>
       </select>
     </div>
