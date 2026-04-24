@@ -4,32 +4,43 @@ import { Ref } from "vue";
 
 export interface UseTone {
   soundEnabled: Ref<boolean>;
+  selectedScaleId: Ref<ScaleId>;
+  selectableScales: Ref<ToneScaleOption[]>;
   toggleSoundEnabled: () => Promise<void>;
-  playTone: (coordinate: Coordinate, options?: BuildNoteOptions) => Promise<void>;
+  playTone: (event: ToneEvent) => Promise<void>;
   setToneSteps: (extent: Extent) => void;
   disposeTone: () => void;
 }
 
 export type ToneType = typeof import("tone");
-export type Note = "G" | "A" | "B" | "C" | "D" | "E" | "F";
+export type Note = "Bb" | "C" | "D" | "Eb" | "E" | "F" | "G" | "A" | "B";
 export type Octave = 1 | 2 | 3 | 4 | 5;
+export type ScaleId =
+  | "cOpen"
+  | "cMajorPentatonic"
+  | "cMinorPentatonic"
+  | "cMajor";
 
-export enum SoundFontLibraries {
-  Musyng = "MusyngKite",
-  Fluid = "FluidR3_GM",
-  FatBoy = "FatBoy",
+export interface ToneScaleOption {
+  id: ScaleId;
+  label: string;
+  notes: Note[];
 }
 
-export enum SoundFontInstruments {
-  Clavinet = "clavinet-mp3",
-  Piano = "electric_piano_1-mp3",
-  GuitarHarmonics = "guitar_harmonics-mp3",
-  Cello = "cello-mp3",
+export interface ToneEvent {
+  coordinate: Coordinate;
+  bikesDelta: number;
+  isSynthetic: boolean;
 }
 
-export interface BuildNoteOptions {
-  library: SoundFontLibraries;
-  instrument: SoundFontInstruments;
-  fadeIn: number;
-  fadeOut: number;
+export interface ToneNote {
+  note: Note;
+  octave: Octave;
+}
+
+export interface TonePattern {
+  notes: ToneNote[];
+  duration: number;
+  velocity: number;
+  filterFrequency: number;
 }

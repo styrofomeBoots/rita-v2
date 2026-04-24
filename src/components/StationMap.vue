@@ -29,6 +29,7 @@ const { playTone, setToneSteps, disposeTone } = useTone();
 
 const mapUrl: string =
   "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png";
+const syntheticUpdateColor = "rgba(143, 122, 90, ";
 
 const mapRef = ref<HTMLDivElement>();
 const map = ref<Map>();
@@ -100,7 +101,7 @@ const animateUpdate = (feature: Feature): void => {
         radius: radius,
         stroke: new Stroke({
           color: isSynthetic
-            ? "rgba(125, 211, 252, " + opacity + ")"
+            ? syntheticUpdateColor + opacity + ")"
             : "rgba(143, 149, 158, " + opacity + ")",
           width: 0.25 + opacity,
         }),
@@ -145,7 +146,7 @@ watch(
   stationUpdate,
   async () => {
     if (!stationUpdate.value) return;
-    await playTone(stationUpdate.value.coordinate);
+    await playTone(stationUpdate.value);
     showStationUpdate(
       stationUpdate.value.coordinate,
       stationUpdate.value.isSynthetic

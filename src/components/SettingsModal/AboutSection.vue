@@ -14,10 +14,11 @@ const toggleRita = (): void => {
       leave-active-class="transition-opacity duration-300" leave-to-class="opacity-0" mode="out-in">
       <div v-if="!showRita" class="text-balance px-2 text-center">
         <p>
-          Bike rental stations are mapped by their latitude and longitude, with a
-          grid sized to the browser's dimensions. The x-axis maps to notes in the C
-          major pentatonic scale, and the y-axis to octaves one through five. When a
-          bike is checked out or returned, the corresponding station's note plays.
+          Bike rental stations are mapped by their latitude and longitude with a
+          grid sized to the browser's dimensions. The x-axis maps to notes in the
+          selected musical scale, and the y-axis to octaves one through five.
+          Checkouts rise, returns fall, and bigger station changes slightly widen
+          the ambient swell.
         </p>
         <p>
           Zooming into different areas of the map changes the note and octave
