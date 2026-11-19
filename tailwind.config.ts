@@ -1,11 +1,17 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import type { Config } from "tailwindcss";
+import { hex, palette } from "./src/palette";
 
 export default {
   content: ["./src/**/*.{astro,html,svelte,vue,js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
+        activity: {
+          out: hex(palette.out),
+          in: hex(palette.in),
+          hot: hex(palette.hot),
+        },
         rita: {
           "50": "#f5f5f5",
           "100": "#e8e8e8",
@@ -58,11 +64,19 @@ export default {
   },
   plugins: [require("daisyui")],
   daisyui: {
-    darkTheme: "forest",
     themes: [
       {
-        sunset: {
+        rita: {
           ...require("daisyui/src/theming/themes")["forest"],
+          primary: "#e2c290",
+          "primary-content": "#1a1714",
+          secondary: "#9fb4c7",
+          accent: "#e07a3f",
+          neutral: "#2a2724",
+          "base-100": "#161514",
+          "base-200": "#1e1c1a",
+          "base-300": "#2a2724",
+          "base-content": "#ece6dc",
           ".btn:focus-visible": {
             outline: "none",
           },

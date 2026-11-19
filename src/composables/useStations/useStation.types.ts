@@ -5,7 +5,6 @@ import { Ref } from "vue";
 export interface City {
   city: string;
   url: string;
-  browsers: string[];
 }
 
 export interface UseStations {
@@ -14,6 +13,8 @@ export interface UseStations {
   selectedCity: Ref<City>;
   selectableCities: Ref<City[]>;
   ambientActivityEnabled: Ref<boolean>;
+  feedError: Ref<boolean>;
+  hotSpot: Ref<string | null>;
   stationUpdate: Ref<StationUpdate | null>;
   stationUpdates: Ref<StationUpdate[]>;
   stationBounds: Ref<StationBounds | null>;
@@ -64,6 +65,7 @@ export interface Stations {
 
 export interface StationUpdate {
   id: string;
+  stationId: string;
   name: string;
   coordinate: Coordinate;
   bikesDelta: number;

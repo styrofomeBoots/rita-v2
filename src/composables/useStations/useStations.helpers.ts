@@ -102,87 +102,59 @@ export const isWithinStationBounds = (
   return lon >= lonMin && lon <= lonMax && lat >= latMin && lat <= latMax;
 };
 
-// to get around the cors stuff that happens in safari
-// hopefully only temporary
-export const getSelectableCities = (): City[] => {
-  const userAgent = navigator.userAgent;
-  if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
-    return cities.filter(city => city.browsers.includes("safari"));
-  }
-  return cities;
-};
-
 // spell-checker:disable
 export const cities: City[] = [
   {
     city: "austin",
-    url: "https://gbfs.bcycle.com/bcycle_austin",
-    browsers: ["chrome"],
+    url: "https://austin.publicbikesystem.net/customer/gbfs/v2/en",
   },
   {
     city: "barcelona",
     url: "https://barcelona.publicbikesystem.net/customer/gbfs/v2/en",
-    browsers: ["chrome"],
   },
   {
     city: "bay area",
-    url: "https://gbfs.baywheels.com/gbfs/en",
-    browsers: ["chrome", "safari"],
+    url: "https://gbfs.lyft.com/gbfs/2.3/bay/en",
   },
   {
     city: "chicago",
     url: "https://gbfs.divvybikes.com/gbfs/en",
-    browsers: ["chrome"],
-  },
-  {
-    city: "columbus",
-    url: "https://gbfs.cogobikeshare.com/gbfs/en",
-    browsers: ["chrome"],
   },
   {
     city: "denver",
     url: "https://gbfs.lyft.com/gbfs/2.3/den/en",
-    browsers: ["chrome"],
   },
   {
     city: "los angeles",
     url: "https://gbfs.bcycle.com/bcycle_lametro",
-    browsers: ["chrome"],
   },
   {
     city: "new york city",
     url: "https://gbfs.lyft.com/gbfs/2.3/bkn/en",
-    browsers: ["chrome"],
   },
   {
     city: "oslo",
     url: "https://api.entur.io/mobility/v2/gbfs/v3/oslobysykkel",
-    browsers: ["chrome", "safari"],
   },
   {
     city: "philadelphia",
     url: "https://gbfs.bcycle.com/bcycle_indego",
-    browsers: ["chrome"],
   },
   {
     city: "portland",
     url: "https://gbfs.biketownpdx.com/gbfs/en",
-    browsers: ["chrome"],
   },
   {
     city: "tel aviv",
     url: "https://gbfs.api.ridedott.com/public/v2/tel-aviv",
-    browsers: ["chrome", "safari"],
   },
   {
     city: "tokyo",
     url: "https://api-public.odpt.org/api/v4/gbfs/docomo-cycle-tokyo",
-    browsers: ["chrome"],
   },
   {
     city: "washington dc",
     url: "https://gbfs.capitalbikeshare.com/gbfs/en",
-    browsers: ["chrome"],
   },
 ];
 // spell-checker:enable

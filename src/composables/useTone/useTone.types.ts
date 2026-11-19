@@ -8,6 +8,7 @@ export interface UseTone {
   selectableScales: Ref<ToneScaleOption[]>;
   toggleSoundEnabled: () => Promise<void>;
   playTone: (event: ToneEvent) => Promise<void>;
+  setHum: (coordinate: Coordinate | null, level: number) => void;
   setToneSteps: (extent: Extent) => void;
   disposeTone: () => void;
 }

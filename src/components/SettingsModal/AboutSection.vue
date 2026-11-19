@@ -17,8 +17,8 @@ const toggleRita = (): void => {
           Bike rental stations are mapped by their latitude and longitude with a
           grid sized to the browser's dimensions. The x-axis maps to notes in the
           selected musical scale, and the y-axis to octaves one through five.
-          Checkouts rise, returns fall, and bigger station changes slightly widen
-          the ambient swell.
+          Checkouts rise and ripple out, returns fall and close in, and busy
+          areas glow and hum.
         </p>
         <p>
           Zooming into different areas of the map changes the note and octave

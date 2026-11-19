@@ -2,3 +2,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* quiet the base map: no green parks, a little warmth, so activity pops */
+.rita-tiles canvas {
+  filter: grayscale(0.85) sepia(0.12) brightness(0.8) contrast(1.08);
+}
