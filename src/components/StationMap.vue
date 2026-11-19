@@ -6,6 +6,7 @@ import TileLayer from "ol/layer/Tile";
 import XYZ from "ol/source/XYZ";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
+import CircleGeom from "ol/geom/Circle";
 import VectorLayer from "ol/layer/Vector";
 import HeatmapLayer from "ol/layer/Heatmap";
 import VectorSource from "ol/source/Vector";
@@ -219,7 +220,14 @@ const animateUpdate = (
   bikesDelta: number,
   isSynthetic: boolean
 ): void => {
-  const flashGeom = new Point(coordinate);
+  // nobody can see rings in a hidden tab, and they would all fire at once on return
+  if (document.hidden) return;
+  // one shape and one style per ring, changed in place each frame. building a
+  // new circle style every frame made a new offscreen canvas every frame, and
+  // those piled up to around a gig of memory over time.
+  const ringGeom = new CircleGeom(coordinate, 0);
+  const ringStroke = new Stroke({ color: "transparent", width: 1 });
+  const ringStyle = new Style({ stroke: ringStroke });
   const magnitude = Math.min(Math.abs(bikesDelta), 4);
   const isReturn = bikesDelta > 0;
   const isBig = !isSynthetic && Math.abs(bikesDelta) >= BIG_CHANGE;
@@ -244,6 +252,8 @@ const animateUpdate = (
       return;
     }
     const vectorContext = getVectorContext(event);
+    // ring sizes are in pixels, the map is in degrees
+    const resolution = event.frameState.viewState.resolution;
 
     for (let ring = 0; ring < rings; ring++) {
       const progress = (elapsed - ring * stagger) / duration;
@@ -255,19 +265,13 @@ const animateUpdate = (
         ? Math.sin(Math.PI * progress) * 0.9
         : easeOut(1 - progress);
 
-      vectorContext.setStyle(
-        new Style({
-          image: new CircleStyle({
-            radius,
-            stroke: new Stroke({
-              color: rgba(rgb, opacity * fade),
-              width:
-                (0.3 + opacity * 1.1) * (isBig ? 1.4 : 1) * (isSynthetic ? 0.7 : 1),
-            }),
-          }),
-        })
+      ringGeom.setRadius(radius * resolution);
+      ringStroke.setColor(rgba(rgb, opacity * fade));
+      ringStroke.setWidth(
+        (0.3 + opacity * 1.1) * (isBig ? 1.4 : 1) * (isSynthetic ? 0.7 : 1)
       );
-      vectorContext.drawGeometry(flashGeom);
+      vectorContext.setStyle(ringStyle);
+      vectorContext.drawGeometry(ringGeom);
     }
     map.value?.render();
   }) as EventsKey;
